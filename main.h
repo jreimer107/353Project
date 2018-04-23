@@ -35,9 +35,9 @@
 #define TICKS 62500
 #define LED_CYCLE 20
 
-#define TOP_BORDER			PLANE_HEIGHT/2
+#define TOP_BORDER			HERO_HEIGHT/2
 #define BOTTOM_BORDER		ROWS - TOP_BORDER
-#define LEFT_BORDER			PLANE_WIDTH/2
+#define LEFT_BORDER			HERO_WIDTH/2
 #define RIGHT_BORDER		COLS - LEFT_BORDER - 1
 
 #define DOWN_THRESHOLD	0x400
@@ -53,8 +53,8 @@
 
 extern void initialize_serial_debug(void);
 
-//typedef enum {IDLE_lr, RIGHT, LEFT} left_right_t;
-//typedef enum {IDLE_ud, UP, DOWN} up_down_t;
+typedef enum {IDLE_lr, RIGHT, LEFT} left_right_t;
+typedef enum {IDLE_ud, UP, DOWN} up_down_t;
 
 ///////////////////////////////
 // Declare any custom types //
@@ -62,7 +62,7 @@ extern void initialize_serial_debug(void);
 typedef struct {
 	uint16_t x_loc;
 	uint16_t y_loc;
-} plane_t;
+} hero_t;
 
 struct missle {
 	uint16_t x_loc;
@@ -86,7 +86,7 @@ void update_green_led(void);
 void fire_missle(void);
 void remove_missle(void);
 void update_missles(void);
-void update_plane(void);
+void update_hero(void);
 void draw(void);
 
 

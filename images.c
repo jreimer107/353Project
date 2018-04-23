@@ -1,14 +1,14 @@
-#include "HW3_images.h"
+#include "images.h"
 
 // 
-//  Image data for plane
+//  Image data for hero
 // 
 
 // 
-//  Image data for plane
+//  Image data for hero
 // 
 
-const uint8_t planeBitmap[] =
+const uint8_t heroBitmap[] =
 {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //                                                
 	0x00, 0x00, 0x01, 0x00, 0x00, 0x00, //                        #                       

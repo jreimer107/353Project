@@ -34,7 +34,7 @@ char individual_2[] = "Luke Richmond";
 ///////////////////////////
 // Global declared next //
 /////////////////////////
-plane_t plane;
+hero_t hero;
 
 struct missle * m_head = NULL;
 struct missle * m_tail = NULL;
@@ -96,9 +96,9 @@ void ADC0SS2_Handler(void) {
 int 
 main(void)
 {
-	//Initialize plane location, timer, and adc.
-	plane.x_loc = COLS/2;
-	plane.y_loc = ROWS/2;
+	//Initialize hero location, timer, and adc.
+	hero.x_loc = COLS/2;
+	hero.y_loc = ROWS/2;
 	gp_timer = (TIMER0_Type*)TIMER0_BASE;
 	myadc = (ADC0_Type*)ADC0_BASE;
   initialize_hardware();
@@ -125,7 +125,7 @@ main(void)
 		if (TimerB_Done) {
 			update_green_led();
 			get_ps2_value(ADC0_BASE);
-			update_plane();
+			update_hero();
 			TimerB_Done = false;
 		}
 		if (ADC_Done) {
@@ -173,11 +173,11 @@ void update_green_led(void) {
 	countB = (countB + 1) % LED_CYCLE;	
 }
 
-void update_plane(void) {
-	if (ps2_x > LEFT_THRESHOLD && plane.x_loc > LEFT_BORDER) plane.x_loc--;
-	else if (ps2_x < RIGHT_THRESHOLD && plane.x_loc < RIGHT_BORDER) plane.x_loc++;
-	if (ps2_y > UP_THRESHOLD && plane.y_loc > TOP_BORDER) plane.y_loc--;
-	else if (ps2_y < DOWN_THRESHOLD && plane.y_loc < BOTTOM_BORDER) plane.y_loc++;
+void update_hero(void) {
+	if (ps2_x > LEFT_THRESHOLD && hero.x_loc > LEFT_BORDER) hero.x_loc--;
+	else if (ps2_x < RIGHT_THRESHOLD && hero.x_loc < RIGHT_BORDER) hero.x_loc++;
+	if (ps2_y > UP_THRESHOLD && hero.y_loc > TOP_BORDER) hero.y_loc--;
+	else if (ps2_y < DOWN_THRESHOLD && hero.y_loc < BOTTOM_BORDER) hero.y_loc++;
 }
 
 
@@ -207,8 +207,8 @@ void update_missles(void) {
 //Adds new missle object to tail of linked list
 void fire_missle(void) {
 	struct missle *newMissle = malloc(sizeof(struct missle));
-	newMissle->x_loc = plane.x_loc;
-	newMissle->y_loc = plane.y_loc - PLANE_HEIGHT/2;
+	newMissle->x_loc = hero.x_loc;
+	newMissle->y_loc = hero.y_loc - HERO_HEIGHT/2;
 	newMissle->nxt = NULL;
 	if (m_head == NULL) m_head = newMissle;
 	else m_tail->nxt = newMissle;
@@ -232,15 +232,20 @@ void remove_missle(void) {
 
 void update_enemies(void) {
 	enemy_t *curr_enemy;
-	while (curr_enemy);
-	uint8_t direction_preference = rand() % PREFERENCE_MAX;
-	if (direction_preference > PREFERENCE_CUTOFF) {
-		if (curr_enemy->x_loc > plane.x_loc) curr_enemy->x_loc--;
-		else if (curr_enemy->x_loc < plane.x_loc) curr_enemy->x_loc++;
-	}
-	else {
-		if (curr_enemy->y_loc > plane.y_loc) curr_enemy->y_loc--;
-		else if (curr_enemy->y_loc < plane.y_loc) curr_enemy->y_loc++;
+	while (curr_enemy) {
+		if (curr_enemy->type == ZOMBOID) {
+			uint8_t direction_preference = rand() % PREFERENCE_MAX;
+			if (direction_preference > PREFERENCE_CUTOFF) {
+				if (curr_enemy->x_loc > hero.x_loc) curr_enemy->x_loc--;
+				else if (curr_enemy->x_loc < hero.x_loc) curr_enemy->x_loc++;
+			}
+			else {
+				if (curr_enemy->y_loc > hero.y_loc) curr_enemy->y_loc--;
+				else if (curr_enemy->y_loc < hero.y_loc) curr_enemy->y_loc++;
+			}
+		}
+		else if (curr_enemy->type == BATTI)	 {
+			
 	}
 }
 
@@ -250,13 +255,13 @@ void update_enemies(void) {
 
 void draw(void) {
 	struct missle * m_curr = NULL;
-	//Draw plane
+	//Draw hero
 	lcd_draw_image(
-    plane.x_loc,            // X Pos
-    PLANE_WIDTH,   					// Image Horizontal Width
-    plane.y_loc,            // Y Pos
-    PLANE_HEIGHT,  					// Image Vertical Height
-    planeBitmap,       			// Image
+    hero.x_loc,            // X Pos
+    HERO_WIDTH,   					// Image Horizontal Width
+    hero.y_loc,            // Y Pos
+    HERO_HEIGHT,  					// Image Vertical Height
+    heroBitmap,       			// Image
     LCD_COLOR_BLUE,      	// Foreground Color
     LCD_COLOR_BLACK     		// Background Color
   );
