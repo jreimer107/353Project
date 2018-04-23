@@ -391,14 +391,14 @@
               <FilePath>.\main.h</FilePath>
             </File>
             <File>
-              <FileName>HW3_images.c</FileName>
+              <FileName>images.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\HW3_images.c</FilePath>
+              <FilePath>.\images.c</FilePath>
             </File>
             <File>
-              <FileName>HW3_images.h</FileName>
+              <FileName>images.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\HW3_images.h</FilePath>
+              <FilePath>.\images.h</FilePath>
             </File>
           </Files>
         </Group>

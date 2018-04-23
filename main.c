@@ -220,9 +220,9 @@ void remove_missle(void) {
 	//Draw blank missile bitmap to erase
 	lcd_draw_image(
 		m_head->x_loc,      // X Pos
-		MISSLE_WIDTH,   		// Image Horizontal Width
+		MISSLE_WIDTH,   	// Image Horizontal Width
 		MISSLE_HEIGHT/2,    // Y Pos
-		MISSLE_HEIGHT,  		// Image Vertical Height
+		MISSLE_HEIGHT,  	// Image Vertical Height
 		missleErase,      	// Image
 		LCD_COLOR_YELLOW,    // Foreground Color
 		LCD_COLOR_BLACK     // Background Color
@@ -231,8 +231,23 @@ void remove_missle(void) {
 }
 
 void update_enemies(void) {
-	enemy_t *curr_enemy;
+	enemy_t *curr_enemy = enemy_head;
+	enemy_t *prev_enemy = NULL;
+
+	
 	while (curr_enemy) {
+		//enemy dead
+		if (curr_enemy->health <= 0) {
+			if (prev_enemy) prev_enemy->next = curr_enemy->next;
+			else enemy_head = curr_enemy->next;
+			remove_enemy(curr_enemy);
+			free(curr_enemy);
+			curr_enemy = prev_enemy->next;
+			continue;
+		}
+
+
+		//Update enemy position/movement
 		if (curr_enemy->type == ZOMBOID) {
 			uint8_t direction_preference = rand() % PREFERENCE_MAX;
 			if (direction_preference > PREFERENCE_CUTOFF) {
@@ -245,12 +260,25 @@ void update_enemies(void) {
 			}
 		}
 		else if (curr_enemy->type == BATTI)	 {
-			
+			if (dir == UP)  {
+				curr_enemy->y_loc++;
+				if (curr_enemy->y_loc < BAT_HEIGHT/2) curr_enemy->dir = DOWN;
+
+			}
 	}
 }
 
-
-
+//Detects if an enemy is at an edge.
+//returns UP if the enemy is at the top edge of the screen
+//returns DOWN if the enemy is at the bottom edge of the screen
+//returns LEFT if the enemy is at the left edge of the screen
+//returns RIGHT if the enemy is at the right edge of the screen
+dir_t at_edge(enemy_t enemy, uint8_t enemy_height, uint8_t enemy_width) {
+	if (enemy->y_loc < enemy_height / 2) return UP;
+	if (enemy->y_loc > ROWS - enemy_height / 2) return DOWN;
+	if (enemy->x_loc < enemy_width / 2) return LEFT;
+	if (enemy->y_loc > ROWS - enemy_height / 2) return DOWN;
+}
 
 
 void draw(void) {
