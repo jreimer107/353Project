@@ -45,9 +45,16 @@
 #define RIGHT_THRESHOLD	0x400
 #define LEFT_THRESHOLD	0xC00
 
+#define ZOMBOID 0
+#define BATTI 1
+
+#define PREFERENCE_MAX 		10
+#define PREFERENCE_CUTOFF	PREFERENCE_MAX / 2
 
 extern void initialize_serial_debug(void);
 
+//typedef enum {IDLE_lr, RIGHT, LEFT} left_right_t;
+//typedef enum {IDLE_ud, UP, DOWN} up_down_t;
 
 ///////////////////////////////
 // Declare any custom types //
@@ -62,6 +69,13 @@ struct missle {
 	uint16_t y_loc;
 	struct missle *nxt;
 };
+
+typedef struct enemy_t{
+	uint8_t type;
+	uint16_t x_loc;
+	uint16_t y_loc;
+	struct enemy_t *next;
+} enemy_t;
 
 
 //////////////////////////////

@@ -25,7 +25,7 @@
 #include "timers.h"
 #include "ps2.h"
 #include "launchpad_io.h"
-#include "HW3_images.h"
+#include "images.h"
 
 char group[] = "Group??";
 char individual_1[] = "John	Reimer";
@@ -38,6 +38,8 @@ plane_t plane;
 
 struct missle * m_head = NULL;
 struct missle * m_tail = NULL;
+
+enemy_t *enemy_head = NULL;
 
 static uint16_t ps2_x, ps2_y;
 
@@ -227,6 +229,24 @@ void remove_missle(void) {
 	);
 	m_head = m_head->nxt;
 }
+
+void update_enemies(void) {
+	enemy_t *curr_enemy;
+	while (curr_enemy);
+	uint8_t direction_preference = rand() % PREFERENCE_MAX;
+	if (direction_preference > PREFERENCE_CUTOFF) {
+		if (curr_enemy->x_loc > plane.x_loc) curr_enemy->x_loc--;
+		else if (curr_enemy->x_loc < plane.x_loc) curr_enemy->x_loc++;
+	}
+	else {
+		if (curr_enemy->y_loc > plane.y_loc) curr_enemy->y_loc--;
+		else if (curr_enemy->y_loc < plane.y_loc) curr_enemy->y_loc++;
+	}
+}
+
+
+
+
 
 void draw(void) {
 	struct missle * m_curr = NULL;
