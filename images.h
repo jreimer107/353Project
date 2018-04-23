@@ -13,10 +13,22 @@
 #define		BAT_WIDTH		16
 #define		ZOMBIE_HEIGHT	24
 #define		ZOMBIE_WIDTH	16
+#define		BLOB_HEIGHT		16
+#define		BLOB_WIDTH		16
+#define		MIMIC_HEIGHT	24
+#define		MIMIC_WIDTH		16
 
 
 extern const uint8_t heroBitmap[];
 extern const uint8_t missleBitmap[];
 extern const uint8_t missleErase[];
+extern const uint8_t zombieBitmap[];
+extern const uint8_t zombieErase[];
+extern const uint8_t batBitmap[];
+extern const uint8_t batErase[];
+extern const uint8_t blobBitmap[];
+extern const uint8_t blobErase[];
+extern const uint8_t mimicBitmap[];
+extern const uint8_t mimicErase[];
 
 #endif

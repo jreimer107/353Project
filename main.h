@@ -45,16 +45,21 @@
 #define RIGHT_THRESHOLD	0x400
 #define LEFT_THRESHOLD	0xC00
 
-#define ZOMBOID 0
-#define BATTI 1
+#define ZOMBIE 0
+#define BAT 1
+#define BLOB 2
+#define MIMIC 3
 
+//Enemy constants
 #define PREFERENCE_MAX 		10
 #define PREFERENCE_CUTOFF	PREFERENCE_MAX / 2
+#define BLOB_COUNT			10
+#define HOP_THRESHOLD		0x0F
 
 extern void initialize_serial_debug(void);
 
-typedef enum {IDLE_lr, RIGHT, LEFT} left_right_t;
-typedef enum {IDLE_ud, UP, DOWN} up_down_t;
+typedef enum {IDLE, RIGHT, LEFT} lr_t;
+typedef enum {IDLE, UP, DOWN} ud_t;
 typedef enum {IDLE, UP, DOWN, RIGHT, LEFT} dir_t;
 
 ///////////////////////////////
@@ -72,12 +77,16 @@ struct missle {
 };
 
 typedef struct enemy_t{
-	uint8_t type;
-	int8_t health;
-	dir_t dir;
+	struct enemy_t *next;
+	lr_t lr;
+	ud_t ud;
 	uint16_t x_loc;
 	uint16_t y_loc;
-	struct enemy_t *next;
+	uint8_t type;
+	int8_t health;
+	uint8_t count;
+	uint8_t height;
+	uint8_t width;
 } enemy_t;
 
 

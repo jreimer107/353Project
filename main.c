@@ -233,8 +233,6 @@ void remove_missle(void) {
 void update_enemies(void) {
 	enemy_t *curr_enemy = enemy_head;
 	enemy_t *prev_enemy = NULL;
-
-	
 	while (curr_enemy) {
 		//enemy dead
 		if (curr_enemy->health <= 0) {
@@ -248,7 +246,8 @@ void update_enemies(void) {
 
 
 		//Update enemy position/movement
-		if (curr_enemy->type == ZOMBOID) {
+		//Zombies follow the player, with some sway.
+		if (curr_enemy->type == ZOMBIE) { //Zombies have a random direction preference to make them sway towards the player
 			uint8_t direction_preference = rand() % PREFERENCE_MAX;
 			if (direction_preference > PREFERENCE_CUTOFF) {
 				if (curr_enemy->x_loc > hero.x_loc) curr_enemy->x_loc--;
@@ -259,25 +258,118 @@ void update_enemies(void) {
 				else if (curr_enemy->y_loc < hero.y_loc) curr_enemy->y_loc++;
 			}
 		}
-		else if (curr_enemy->type == BATTI)	 {
-			if (dir == UP)  {
-				curr_enemy->y_loc++;
-				if (curr_enemy->y_loc < BAT_HEIGHT/2) curr_enemy->dir = DOWN;
 
+		//Bats bounce around the screen.
+		else if (curr_enemy->type == BAT)	 {
+			//If given only one direction they will repeatedy go back and forth
+			//If given two directions they will bounce around like tv screensavers
+			lr_t edge_lr = at_edge_lr(curr_enemy);
+			ud_t edge_ud = at_edge_ud(curr_enemy);
+			//Detect if at edge of screen, switch movement direction
+			if (curr_enemy->lr = LEFT) {
+				curr_enemy->x_loc--;
+				if (edge_lr == LEFT) curr_enemy->lr = RIGHT;
 			}
+			else if (curr_enemy->lr = RIGHT) {
+				curr_enemy->x_loc++;
+				if (edge_lr == RIGHT) curr_enemy->lr = LEFT;
+			}
+
+			if (curr_enemy->ud = UP) {
+				curr_enemy->y_loc--;
+				if (edge_ud == UP) curr_enemy->ud = DOWN;
+			}
+			else if (curr_enemy->ud = DOWN) {
+				curr_enemy->y_loc++;
+				if (edge_ud == RIGHT) curr_enemy->ud = UP;
+			}
+		}
+
+		//Blobs periodically hop around.
+		else if (curr_enemy->type == BLOB) {
+			//Count reached, switch between moving and idle.
+			if (curr_enemy->count == BLOB_COUNT) {
+				if (curr_enemy->lr != IDLE || curr_enemy->ud != IDLE) {
+					curr_enemy->lr = IDLE;
+					curr_enemy->ud == IDLE;
+				}
+				else {	//We are idle, need to pick a direction to hop;
+					uint8_t hop_dir = rand();
+					//If we are odd, hop horizontal. Else hop vertical
+					if (hop_dir % 2) {
+						//If we are greater or equal to threshold, hop right. Else hop left.
+						if (hop_dir > HOP_THRESHOLD) curr_enemy->lr = RIGHT;
+						else curr_enemy->lr = RIGHT;
+					}
+					else {
+						//If we are greater or equal to threshold, hop down. Else hop up.
+						if (hop_dir > HOP_THRESHOLD) curr_enemy->ud = DOWN;
+						else curr_enemy->ud = UP;
+					}
+				}
+				curr_enemy->count = 0;
+			}
+			else curr_enemy->count++;
+
+			//Actually move.
+			lr_t edge_lr = at_edge_lr(curr_enemy, BLOB_WIDTH);
+			ud_t edge_ud = at_edge_ud(curr_enemy, BLOB_HEIGHT);
+			if (curr_enemy->lr == LEFT && edge_lr != LEFT) curr_enemy->x_loc--;
+			else if (curr_enemy->lr == RIGHT && edge_lr != RIGHT) curr_enemy->x_loc++;
+			else if (curr_enemy->ud == UP && edge_lr != UP) curr_enemy->y_loc--;
+			else if (curr_enemy->ud == DOWN && edge_lr != DOWN) curr_enemy->y_loc++;
+		}
+
+		//Mimics, surprisingly, mimic the movement of the player, but slower (same speed, faster? variants?)
+		else if (curr_enemy->type = MIMIC) {
+			lr_t edge_lr = at_edge_lr(curr_enemy, MIMIC_WIDTH);
+			ud_t edge_ud = at_edge_ud(curr_enemy, MIMIC_HEIGHT);
+			if (ps2_x > LEFT_THRESHOLD && edge_lr != LEFT) curr_enemy->x_loc--;
+			else if (ps2_x < RIGHT_THRESHOLD && edge_lr != RIGHT) curr_enemy->x_loc++;
+			if (ps2_y > UP_THRESHOLD && edge_ud != UP) curr_enemy->y_loc--;
+			else if (ps2_y < DOWN_THRESHOLD && edge_ud != DOWN) curr_enemy->y_loc++;
+		}
+
+		//Update next enemy
+		prev_enemy = curr_enemy;
+		curr_enemy = curr_enemy->next;
 	}
+}
+
+void remove_enemy(enemy_t enemy) {
+	uint8_t width;
+
+	lcd_draw_image(
+		enemy->x_loc,	 // X Pos
+		MISSLE_WIDTH,	  // Image Horizontal Width
+		enemy->y_loc, // Y Pos
+		MISSLE_HEIGHT,	 // Image Vertical Height
+		missleErase,	   // Image
+		LCD_COLOR_YELLOW,  // Foreground Color
+		LCD_COLOR_BLACK	// Background Color
+	);
+}
+
+
+
+//Detects if an enemy is at an edge.
+//returns LEFT if the enemy is at the left edge of the screen
+//returns RIGHT if the enemy is at the right edge of the screen
+//else returns IDLE.
+lr_t at_edge_lr(enemy_t enemy) {
+	if (enemy->x_loc < enemy->width / 2) return LEFT;
+	if (enemy->y_loc > COLS - enemy->width / 2) return RIGHT;
+	return IDLE;
 }
 
 //Detects if an enemy is at an edge.
 //returns UP if the enemy is at the top edge of the screen
 //returns DOWN if the enemy is at the bottom edge of the screen
-//returns LEFT if the enemy is at the left edge of the screen
-//returns RIGHT if the enemy is at the right edge of the screen
-dir_t at_edge(enemy_t enemy, uint8_t enemy_height, uint8_t enemy_width) {
-	if (enemy->y_loc < enemy_height / 2) return UP;
-	if (enemy->y_loc > ROWS - enemy_height / 2) return DOWN;
-	if (enemy->x_loc < enemy_width / 2) return LEFT;
-	if (enemy->y_loc > ROWS - enemy_height / 2) return DOWN;
+//Else returns IDLE.
+ud_t at_edge_ud(enemy_t enemy, uint8_t enemy_height) {
+	if (enemy->y_loc < enemy->height / 2) return UP;
+	if (enemy->y_loc > ROWS - enemy->height / 2) return DOWN;
+	return IDLE;
 }
 
 
