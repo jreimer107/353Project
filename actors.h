@@ -13,11 +13,11 @@
 #define BLOB 4
 #define MIMIC 5
 
-//hitboxes
-#define HERO_BOX_UP		-HER0_HEIGHT / 2
-#define HERO_BOX_DOWN	HERO_HEIGHT / 2
-#define HERO_BOX_LEFT	-HERO_WIDTH / 2
-#define HERO_BOX_RIGHT	HERO_WIDTH / 2
+#define PLAYER_HEALTH 3
+#define ZOMBIE_HEALTH 3
+#define BAT_HEALTH 2
+#define BLOB_HEALTH 4
+#define MIMIC_HEALTH 5
 
 #define TOP_BORDER 		HERO_HEIGHT / 2
 #define BOTTOM_BORDER 	ROWS - TOP_BORDER

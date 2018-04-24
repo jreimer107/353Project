@@ -1,3 +1,4 @@
 *.d
 *.htm
 *.lnp
+.vscode/c_cpp_properties.json

@@ -56,22 +56,30 @@ void update_actors() {
 //It also fires missiles.
 bool update_hero(actor_t *hero) {
 	static uint8_t button_count = 0;
-	
-	//Check for button presses for new missile
-	//Button needs to be held for 40ms (4 interrupts) before missile fires
-	if (lp_io_read_pin(SW1_BIT)) {
-		//Make sure missile only fires once per button press, gets stuck at 5.
-		if (button_count <= 4) button_count++;
-		//Fire missile
-		if (button_count == 4) fire_missle();
-	}
-	else button_count = 0;
+	lr_t edge_lr = at_edge_lr(hero);
+	ud_t edge_ud = at_edge_ud(hero);
 
-	//Update position
-	if (ps2_x > LEFT_THRESHOLD && at_edge_lr(hero) != LEFT) hero->x_loc--;
-	else if (ps2_x < RIGHT_THRESHOLD && at_edge_lr(hero) != RIGHT) hero->x_loc++;
-	if (ps2_y > UP_THRESHOLD && at_edge_lr(hero) != UP) hero->y_loc--;
-	else if (ps2_y < DOWN_THRESHOLD && at_edge_lr(hero) != DOWN) hero->y_loc++;
+	//Update direction facing (needed for missiles) and position
+	//TODO: face where shooting
+	if (ps2_x > LEFT_THRESHOLD) {
+		hero->lf = LEFT;
+		if (edge_lr != LEFT) hero->x_loc--;
+	}
+	else if (ps2_x < RIGHT_THRESHOLD) {
+		hero->lf = RIGHT;
+		if (edge_lr != RIGHT) hero->x_loc++;
+	}
+	else hero->lf = IDLE;
+	if (ps2_y > UP_THRESHOLD) {
+		 hero->ud = UP;
+		 if (edge_ud != UP) hero->y_loc--;
+	}
+	else if (ps2_y < DOWN_THRESHOLD) {
+		hero->ud = DOWN;
+		if (edge_ud != DOWN) hero->y_loc++;
+	}
+	else hero->ud = DOWN;	//Want to default to facing down.
+
 
 	//Update collisions
 	if (!hero->count) { 
@@ -85,6 +93,18 @@ bool update_hero(actor_t *hero) {
 	}
 	//Invincibility count is active, do not check collisions
 	else count--;
+
+
+	//Check for button presses for new missile
+	//Button needs to be held for 40ms (4 interrupts) before missile fires
+	if (lp_io_read_pin(SW1_BIT)) {
+		//Make sure missile only fires once per button press, gets stuck at 5.
+		if (button_count <= 4) button_count++;
+		//Fire missile
+		if (button_count == 4) create_actor(MISSILE, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
+	}
+	else button_count = 0;
+
 
 	//Report aliveness (false for dead)
 	if (hero->health) return false;
@@ -138,6 +158,7 @@ bool update_zombie(actor_t *zombie) {
 	return false;
 }
 
+//Bats bounce around the screen.
 bool update_bat(actor_t *bat) {
 	//If given only one direction they will repeatedy go back and forth
 	//If given two directions they will bounce around like tv screensavers
@@ -225,8 +246,55 @@ bool update_mimic(actor_t *mimic) {
 	return false;
 }
 
-void create_actor(uint8_t type, uint16_t x, uint16_t y) {
-	
+actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
+	actor_t *actor = malloc(sizeof(actor));
+	if (type == MISSILE) {
+		actor->bitmap = &missleBitmap;
+		actor->clear_bitmap = &missileErase;
+		actor->height = MISSILE_HEIGHT;
+		actor->width = MISSILE_WIDTH;
+	}
+	else if (type == ZOMBIE) {
+		actor->bitmap = &zombieBitmap;
+		actor->clear_bitmap = &zombieErase;
+		actor->height = ZOMBIE_HEIGHT;
+		actor->width = ZOMBIE_WIDTH;
+		actor->health = ZOMBIE_HEALTH;
+	}
+	else if (type == BAT) {
+		actor->bitmap = &batBitmap;
+		actor->clear_bitmap = &batErase;
+		actor->height = BAT_HEIGHT;
+		actor->width = BAT_WIDTH;
+		actor->health = BAT_HEALTH;
+	}
+	else if (type == BLOB) {
+		actor->bitmap = &blobBitmap;
+		actor->clear_bitmap = &blobErase;
+		actor->height = BLOB_HEIGHT;
+		actor->width = BLOB_WIDTH;
+		actor->health = BLOB_HEALTH;
+	}
+	else if (typ == MIMIC) {
+		actor->bitmap = &mimicBitmap;
+		actor->clear_bitmap = &mimicErase;
+		actor->height = MIMIC_HEIGHT;
+		actor->width = MIMIC_WIDTH;
+		actor->health = MIMIC_HEALTH;
+	}
+
+	actor->lr = lr;
+	actor->ud = ud;
+	actor->x_loc = x;
+	actor->y_loc = y;
+	actor->type = type;
+	actor->count = 0;
+
+	//Link into list after head
+	actor->next = actors->next;
+	actors->next = actor;
+
+	return actor;
 }
 
 
