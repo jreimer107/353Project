@@ -328,7 +328,7 @@ bool detect_collision(actor_t *a, actor_t *b) {
 	a_left = a->x_loc - a->width;
 	a_right = a->x_loc + a->width;
 
-	b_tio = b->y_loc - b->height;
+	b_top = b->y_loc - b->height;
 	b_bottom = b->y_loc + b->height;
 	b_left = b->x_loc - b->width;
 	b_right = b->x_loc + b->width;

@@ -89,7 +89,7 @@ void TIMER0B_Handler(void) {
 
 void ADC0SS2_Handler(void) {
 	ADC_Done = true;
-  myadc->ISC = ADC_ISC_IN2;          // Ack the conversion
+  	myadc->ISC = ADC_ISC_IN2;          // Ack the conversion
 }
 
 //*****************************************************************************
@@ -102,7 +102,7 @@ main(void)
 	hero.y_loc = ROWS/2;
 	gp_timer = (TIMER0_Type*)TIMER0_BASE;
 	myadc = (ADC0_Type*)ADC0_BASE;
-  initialize_hardware();
+  	initialize_hardware();
 	gp_timer_start_16(TIMER0_BASE, 7, 15, TICKS, TICKS);
 
   put_string("\n\r");
