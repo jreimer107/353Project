@@ -55,10 +55,7 @@ extern void initialize_serial_debug(void);
 ////////////////////////////
 void update_red_led(void);
 void update_green_led(void);
-void fire_missle(void);
-void remove_missle(void);
-void update_missles(void);
-void update_hero(void);
+void update_hero_dir(void);
 void draw(void);
 
 

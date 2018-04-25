@@ -26,6 +26,7 @@
 #include "ps2.h"
 #include "launchpad_io.h"
 #include "images.h"
+#include "actors.h"
 
 char group[] = "Group??";
 char individual_1[] = "John	Reimer";
@@ -34,20 +35,22 @@ char individual_2[] = "Luke Richmond";
 ///////////////////////////
 // Global declared next //
 /////////////////////////
-hero_t hero;
 
-struct missle * m_head = NULL;
-struct missle * m_tail = NULL;
-
-enemy_t *enemy_head = NULL;
-actor_t *actor = NULL;
+//struct missle * m_head = NULL;
+//struct missle * m_tail = NULL;
+extern actor_t* actors;
+actor_t *hero;
+//enemy_t *enemy_head = NULL;
+//actor_t *actor = NULL;
 
 static uint16_t ps2_x, ps2_y;
 
 volatile bool TimerA_Done = false;
 volatile bool TimerB_Done = false; 
 volatile bool ADC_Done = false;
+volatile bool button_press = false;
 TIMER0_Type* gp_timer;
+GPIOA_Type* portf;
 ADC0_Type* myadc;
 
 
@@ -92,14 +95,23 @@ void ADC0SS2_Handler(void) {
   	myadc->ISC = ADC_ISC_IN2;          // Ack the conversion
 }
 
+void GPIOF_Handler(void) {
+	button_press = true;
+	//clear icr of gpiof
+	portf->ICR |= GPIO_ICR_GPIO_M;
+	//read interrupt flag register ifr of port expander
+}
+
+
 //*****************************************************************************
 //*****************************************************************************
 int 
 main(void)
 {
 	//Initialize hero location, timer, and adc.
-	hero.x_loc = COLS/2;
-	hero.y_loc = ROWS/2;
+	hero = actors;
+	hero->x_loc = COLS/2;
+	hero->y_loc = ROWS/2;
 	gp_timer = (TIMER0_Type*)TIMER0_BASE;
 	myadc = (ADC0_Type*)ADC0_BASE;
   	initialize_hardware();
@@ -120,13 +132,13 @@ main(void)
   while(1){
 		if (TimerA_Done) {
 			update_red_led();
-			update_missles();
+			//update_missles();
 			TimerA_Done = false;
 		}
 		if (TimerB_Done) {
 			update_green_led();
 			get_ps2_value(ADC0_BASE);
-			update_hero();
+			update_hero_dir();
 			TimerB_Done = false;
 		}
 		if (ADC_Done) {
@@ -174,4 +186,23 @@ void update_green_led(void) {
 	countB = (countB + 1) % LED_CYCLE;	
 }
 
+void update_hero_dir(void) {
+		if (ps2_x > LEFT_THRESHOLD) {
+		hero->lr = LEFT_d;
+	}
+	else if (ps2_x < RIGHT_THRESHOLD) {
+		hero->lr = RIGHT_d;
+	}
+	else hero->lr = IDLE_lr;
+	if (ps2_y > UP_THRESHOLD) {
+		 hero->ud = UP;
+	}
+	else if (ps2_y < DOWN_THRESHOLD) {
+		hero->ud = DOWN;
+	}
+}
+
+void update_move(void) {
+	if ();
+}
 

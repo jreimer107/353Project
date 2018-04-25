@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-//Bitmap sizes for bat
+// Bitmap sizes for bat
+>>>>>>> Stashed changes
 #define BAT_WIDTH 40
 #define BAT_HEIGHT 22
 //Bitmap sizes for Steve
@@ -24,10 +25,8 @@
 #define MIMIC_HEIGHT 41
 
 
-
 extern const uint8_t heroBitmap[];
 extern const uint8_t batBitmap[];
-extern const uint8_t steveBitmap[];
 extern const uint8_t tearBitmap[];
 extern const uint8_t zombieBitmap[];
 extern const uint8_t slimeBitmap[];
