@@ -21,38 +21,61 @@ Target DLL:      lmidk-agdi.dll V???
 Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
-I:\ece353\HW3\HW3.uvprojx
-Project File Date:  01/08/2018
+I:\ECE353\353Project\BoS.uvprojx
+Project File Date:  04/23/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Rebuild target 'HW2'
-compiling HW3_images.c...
-HW3_images.h(16): warning:  #1-D: last line of file ends without a newline
+compiling images.c...
+images.c(1): error:  #169: expected a declaration
+  <<<<<<< HEAD
+images.h(35): warning:  #1-D: last line of file ends without a newline
   #endif
-HW3_images.c: 1 warning, 0 errors
-compiling adc.c...
+images.c(6): error:  #169: expected a declaration
+  =======
+images.c(38): warning:  #12-D: parsing restarts here after previous syntax error
+  };
+images.c(41): error:  #169: expected a declaration
+  <<<<<<< HEAD
+images.c(95): warning:  #12-D: parsing restarts here after previous syntax error
+  };
+images.c: 3 warnings, 3 errors
 compiling main.c...
-HW3_images.h(16): warning:  #1-D: last line of file ends without a newline
+images.h(35): warning:  #1-D: last line of file ends without a newline
   #endif
-main.c(258): warning:  #1-D: last line of file ends without a newline
-  }
-main.c: 2 warnings, 0 errors
+main.c(37): error:  #20: identifier "hero_t" is undefined
+  hero_t hero;
+main.c(42): error:  #20: identifier "enemy_t" is undefined
+  enemy_t *enemy_head = NULL;
+main.c(43): error:  #20: identifier "actor_t" is undefined
+  actor_t *actor = NULL;
+main.c(72): warning:  #223-D: function "ps2_initialize_SS2" declared implicitly
+  	ps2_initialize_SS2();
+main.c(128): warning:  #223-D: function "get_ps2_value" declared implicitly
+  			get_ps2_value(ADC0_BASE);
+main.c(45): warning:  #550-D: variable "ps2_x"  was set but never used
+  static uint16_t ps2_x, ps2_y;
+main.c(45): warning:  #550-D: variable "ps2_y"  was set but never used
+  static uint16_t ps2_x, ps2_y;
+main.c: 5 warnings, 3 errors
+compiling adc.c...
 compiling gpio_port.c...
 ..\drivers\c\gpio_port.c(82): warning:  #188-D: enumerated type mixed with another type
          return 0;
-..\drivers\c\gpio_port.c(423): warning:  #177-D: variable "gpioPort"  was declared but never referenced
+..\drivers\c\gpio_port.c(432): warning:  #177-D: variable "gpioPort"  was declared but never referenced
     GPIOA_Type  *gpioPort;
 ..\drivers\c\gpio_port.c: 2 warnings, 0 errors
-compiling launchpad_io.c...
 compiling timers.c...
-compiling lcd.c...
+..\drivers\c\timers.c(246): warning:  #940-D: missing return statement at end of non-void function "gp_timer_start_16" 
+  }
+..\drivers\c\timers.c: 1 warning, 0 errors
+compiling launchpad_io.c...
 assembling startup_TM4C123.s...
+compiling lcd.c...
 compiling ps2.c...
 compiling system_TM4C123.c...
-linking...
-Program Size: Code=7740 RO-data=1116 RW-data=84 ZI-data=4100  
-".\obj\ece353_base_project.axf" - 0 Error(s), 5 Warning(s).
+".\obj\ece353_base_project.axf" - 6 Error(s), 11 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -76,12 +99,13 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: Keil::Device:Startup:1.0.1
-      Source file:   Device\Source\system_TM4C123.c
-      Include file:  Device\Include\TM4C123\TM4C123.h
       Source file:   Device\Source\ARM\startup_TM4C123.s
+      Include file:  Device\Include\TM4C123\TM4C123.h
+      Source file:   Device\Source\system_TM4C123.c
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:08
+Target not created.
+Build Time Elapsed:  00:00:11
 </pre>
 </body>
 </html>

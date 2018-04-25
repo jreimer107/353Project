@@ -23,4 +23,4 @@
 .\obj\main.o: ..\peripherals\include\ps2.h
 .\obj\main.o: ..\drivers\include\adc.h
 .\obj\main.o: ..\peripherals\include\launchpad_io.h
-.\obj\main.o: HW3_images.h
+.\obj\main.o: images.h
