@@ -1,6 +1,7 @@
 #include "actors.h"
 
 actor_t *actors; //Hero should be head node;
+extern uint16_t ps2_x, ps2_y;
 
 
 //Main update function. Calls helper functions based on actor type.
@@ -30,8 +31,7 @@ void update_actors() {
 			kill = update_blob(curr_actor);
 		}
 		else if (curr_actor->type == MIMIC) {
-			kill = update_mimic(curr_actor) {
-			}
+			kill = update_mimic(curr_actor);
 		}
 
 		//Remove actor from list if dead
@@ -62,14 +62,14 @@ bool update_hero(actor_t *hero) {
 	//Update direction facing (needed for missiles) and position
 	//TODO: face where shooting
 	if (ps2_x > LEFT_THRESHOLD) {
-		hero->lf = LEFT;
-		if (edge_lr != LEFT) hero->x_loc--;
+		hero->lr = LEFT_d;
+		if (edge_lr != LEFT_d) hero->x_loc--;
 	}
 	else if (ps2_x < RIGHT_THRESHOLD) {
-		hero->lf = RIGHT;
-		if (edge_lr != RIGHT) hero->x_loc++;
+		hero->lr = RIGHT_d;
+		if (edge_lr != RIGHT_d) hero->x_loc++;
 	}
-	else hero->lf = IDLE;
+	else hero->lr = IDLE_lr;
 	if (ps2_y > UP_THRESHOLD) {
 		 hero->ud = UP;
 		 if (edge_ud != UP) hero->y_loc--;
@@ -92,7 +92,7 @@ bool update_hero(actor_t *hero) {
 		}
 	}
 	//Invincibility count is active, do not check collisions
-	else count--;
+	else hero->count--;
 
 
 	//Check for button presses for new missile
@@ -113,7 +113,7 @@ bool update_hero(actor_t *hero) {
 
 //Missile dies on contact with enemy, travels in straight line, and hurts enemies.
 bool update_missile(actor_t *missile) {
-	actor_t enemy = actors->next;
+	actor_t *enemy = actors->next;
 
 	//Check enemy collision
 	while(enemy) {
@@ -130,7 +130,7 @@ bool update_missile(actor_t *missile) {
 	}
 	
 	//Update position
-	if (missile->lr == LEFT) missile->x_loc--;
+	if (missile->lr == LEFT_d) missile->x_loc--;
 	else missile->x_loc++;
 	if (missile->ud == UP) missile->y_loc--;
 	else missile->y_loc++;
@@ -169,15 +169,15 @@ bool update_bat(actor_t *bat) {
 
 
 	//Detect if at edge of screen, switch movement direction
-	if (bat->lr = LEFT) {
+	if (bat->lr = LEFT_d) {
 		bat->x_loc--;
-		if (edge_lr == LEFT)
-			bat->lr = RIGHT;
+		if (edge_lr == LEFT_d)
+			bat->lr = RIGHT_d;
 	}
-	else if (bat->lr = RIGHT) {
+	else if (bat->lr = RIGHT_d) {
 		bat->x_loc++;
-		if (edge_lr == RIGHT)
-			bat->lr = LEFT;
+		if (edge_lr == RIGHT_d)
+			bat->lr = LEFT_d;
 	}
 
 	if (bat->ud = UP) {
@@ -187,7 +187,7 @@ bool update_bat(actor_t *bat) {
 	}
 	else if (bat->ud = DOWN) {
 		bat->y_loc++;
-		if (edge_ud == RIGHT)
+		if (edge_ud == RIGHT_d)
 			bat->ud = UP;
 	}
 	return false;
@@ -209,8 +209,8 @@ bool update_blob(actor_t *blob) {
 			//If we are odd, hop horizontal. Else hop vertical
 			if (hop_dir % 2) {
 				//If we are greater or equal to threshold, hop right. Else hop left.
-				if (hop_dir > HOP_THRESHOLD) blob->lr = RIGHT;
-				else blob->lr = RIGHT;
+				if (hop_dir > HOP_THRESHOLD) blob->lr = RIGHT_d;
+				else blob->lr = RIGHT_d;
 			}
 			else {
 				//If we are greater or equal to threshold, hop down. Else hop up.
@@ -225,8 +225,8 @@ bool update_blob(actor_t *blob) {
 	//Actually move.
 	lr_t edge_lr = at_edge_lr(blob);
 	ud_t edge_ud = at_edge_ud(blob);
-	if (blob->lr == LEFT && edge_lr != LEFT) blob->x_loc--;
-	else if (blob->lr == RIGHT && edge_lr != RIGHT) blob->x_loc++;
+	if (blob->lr == LEFT_d && edge_lr != LEFT_d) blob->x_loc--;
+	else if (blob->lr == RIGHT_d && edge_lr != RIGHT_d) blob->x_loc++;
 	else if (blob->ud == UP && edge_lr != UP) blob->y_loc--;
 	else if (blob->ud == DOWN && edge_lr != DOWN) blob->y_loc++;
 	return true;
@@ -239,8 +239,8 @@ bool update_mimic(actor_t *mimic) {
 
 	lr_t edge_lr = at_edge_lr(mimic);
 	ud_t edge_ud = at_edge_ud(mimic);
-	if (ps2_x > LEFT_THRESHOLD && edge_lr != LEFT) mimic->x_loc--;
-	else if (ps2_x < RIGHT_THRESHOLD && edge_lr != RIGHT) mimic->x_loc++;
+	if (ps2_x > LEFT_THRESHOLD && edge_lr != LEFT_d) mimic->x_loc--;
+	else if (ps2_x < RIGHT_THRESHOLD && edge_lr != RIGHT_d) mimic->x_loc++;
 	if (ps2_y > UP_THRESHOLD && edge_ud != UP) mimic->y_loc--;
 	else if (ps2_y < DOWN_THRESHOLD && edge_ud != DOWN) mimic->y_loc++;
 	return false;
@@ -305,8 +305,8 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 //returns RIGHT if the actor is at the right edge of the screen
 //else returns IDLE.
 lr_t at_edge_lr(actor_t actor) {
-	if (actor->x_loc < actor->width / 2) return LEFT;
-	if (actor->y_loc > COLS - actor->width / 2) return RIGHT;
+	if (actor->x_loc < actor->width / 2) return LEFT_d;
+	if (actor->y_loc > COLS - actor->width / 2) return RIGHT_d;
 	return IDLE;
 }
 

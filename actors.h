@@ -35,6 +35,9 @@
 #define BLOB_COUNT 10
 #define HOP_THRESHOLD 0x0F
 
+typedef enum {IDLE_lr, RIGHT_d, LEFT_d} lr_t;
+typedef enum {IDLE_ud, UP, DOWN} ud_t;
+
 typedef struct {
 	struct actor_t *next;
 	uint8_t *bitmap;
@@ -50,8 +53,14 @@ typedef struct {
 	uint8_t width;
 } actor_t;
 
+void update_actors(void);
+bool update_hero(actor_t*);
+bool update_missile(actor_t*);
+bool update_zombie(actor_t*);
+bool update_bat(actor_t*);
+bool update_blob(actor_t*);
+bool update_mimic(actor_t*);
 
-typedef enum {IDLE, RIGHT, LEFT} lr_t;
-typedef enum {IDLE, UP, DOWN} ud_t;
+
 
 #endif

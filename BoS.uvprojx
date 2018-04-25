@@ -400,6 +400,16 @@
               <FileType>5</FileType>
               <FilePath>.\images.h</FilePath>
             </File>
+            <File>
+              <FileName>actors.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\actors.c</FilePath>
+            </File>
+            <File>
+              <FileName>actors.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\actors.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

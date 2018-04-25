@@ -2,3 +2,6 @@
 *.htm
 *.lnp
 .vscode/c_cpp_properties.json
+*.uvoptx
+*.uvprojx
+*.jreimer2
