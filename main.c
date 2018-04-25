@@ -27,6 +27,7 @@
 #include "launchpad_io.h"
 #include "images.h"
 #include "actors.h"
+#include "eeprom.h"
 
 char group[] = "Group??";
 char individual_1[] = "John	Reimer";
@@ -45,14 +46,19 @@ actor_t *hero;
 
 static uint16_t ps2_x, ps2_y;
 
+//Flags set by interrupt handlers
 volatile bool TimerA_Done = false;
 volatile bool TimerB_Done = false; 
 volatile bool ADC_Done = false;
-volatile bool button_press = false;
+volatile uint8_t button_count = 0;
 TIMER0_Type* gp_timer;
 GPIOA_Type* portf;
 ADC0_Type* myadc;
 I2C0_Type* i2c_base;
+
+uint8_t buttons_current;
+bool buttons_pressed[4];
+bool tear_fired;
 
 
 //*****************************************************************************
@@ -74,6 +80,13 @@ void initialize_hardware(void) {
 	
 	//// Setup ADC to convert on PS2 joystick using SS2 and interrupts ////
 	ps2_initialize_SS2();
+	
+	//Initialize EEPROM
+	eeprom_init();
+	
+	//Initialize port expander
+	mcp_init();
+	
 }
 
 //Red LED
@@ -97,12 +110,11 @@ void ADC0SS2_Handler(void) {
 }
 
 void GPIOF_Handler(void) {
-	button_press = true;
+	button_count = TEAR_RATE;
 	//clear icr of gpiof
 	portf->ICR |= GPIO_ICR_GPIO_M;
-	//read interrupt flag register ifr of port expander
-	
-	
+	//read Gpiob of port expander
+	mcp_byte_read(i2c_base, GPIOBMCP, &buttons_current;
 }
 
 
@@ -140,18 +152,30 @@ main(void)
 			//update_missles();
 			TimerA_Done = false;
 		}
+		
 		if (TimerB_Done) {
 			update_green_led();
 			get_ps2_value(ADC0_BASE);
 			update_hero_dir();
+			//Shoot tears
+			if(button_count) {
+				mcp_byte_read(i2c_base, GPIOBMCP, &buttons_current;
+				debounce_buttons();
+				tear_fired = fire_on_press();
+				if (tear_fired) button_count = TEAR_RATE;
+				else button_count--;
+			}
 			TimerB_Done = false;
 		}
+		
 		if (ADC_Done) {
 			//Read new adc values
 			ps2_x = myadc->SSFIFO2 & 0x0FFF;
 			ps2_y = myadc->SSFIFO2 & 0x0FFF;
 			ADC_Done = false;
 		}
+
+		
 		
 		draw();
   }
@@ -191,23 +215,51 @@ void update_green_led(void) {
 	countB = (countB + 1) % LED_CYCLE;	
 }
 
-void update_hero_dir(void) {
-		if (ps2_x > LEFT_THRESHOLD) {
-		hero->lr = LEFT_d;
-	}
-	else if (ps2_x < RIGHT_THRESHOLD) {
-		hero->lr = RIGHT_d;
-	}
-	else hero->lr = IDLE_lr;
-	if (ps2_y > UP_THRESHOLD) {
-		 hero->ud = UP;
-	}
-	else if (ps2_y < DOWN_THRESHOLD) {
-		hero->ud = DOWN;
+//UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3
+//Tears will keep firing as long as buttons are held.
+void debounce_buttons(void) {
+	int i;
+	static uint8_t button_count[4];
+
+	//Get update button counters based on current state of buttons
+	for (i = 0; i < 4; i++) {
+		if (buttons_current & 1 << i) {	//If button is currently pressed
+			//Check if have had enough iterations to fire tear
+			if (button_count[i] == TEAR_RATE - 1) {	//Indicate that a button has been pressed sufficiently long
+				buttons_pressed[i] = true;
+			}
+			//Increment circular counter
+			button_count[i] = (button_count[i] + 1) % TEAR_RATE;
+		}
+		else button_count[i] = 0;	//Else reset count
 	}
 }
-
-void update_move(void) {
-	if ();
+	
+bool fire_on_press(void) {
+	//Update hero direction
+	if (buttons_pressed[0]) {
+		hero->ud = UP_d;
+		buttons_pressed[0] = false;
+	}
+	if (buttons_pressed[1]) {
+		hero->ud = DOWN_d;
+		buttons_pressed[1] = false;
+	}
+	if (buttons_pressed[2]) {
+		hero->lr = LEFT_d;
+		buttons_pressed[2] = false;
+	}	
+	if (buttons_pressed[3]) {
+		hero->lr = RIGHT_d;
+		buttons_pressed[3] = false;
+	}	
+	
+	//If the direction isn't null-null we need to spawn a tear going in that direction
+	if (hero->lr != IDLE_lr && hero->ud != IDLE_ud) {
+		create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
+		return true;
+	}
+	
+	return false;
 }
 

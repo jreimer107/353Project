@@ -18,8 +18,8 @@ void update_actors() {
 		if (curr_actor->type == HERO) {
 			kill = update_hero(curr_actor);
 		}
-		else if (curr_actor->type == MISSILE) {
-			kill = update_missile(curr_actor);
+		else if (curr_actor->type == TEAR) {
+			kill = update_tear(curr_actor);
 		}
 		else if (curr_actor->type == ZOMBIE) {
 			kill = update_zombie(curr_actor);
@@ -27,8 +27,8 @@ void update_actors() {
 		else if (curr_actor->type == BAT) {
 			kill = update_bat(curr_actor);
 		}
-		else if (curr_actor->type == BLOB) {
-			kill = update_blob(curr_actor);
+		else if (curr_actor->type == SLIME) {
+			kill = update_slime(curr_actor);
 		}
 		else if (curr_actor->type == MIMIC) {
 			kill = update_mimic(curr_actor);
@@ -53,13 +53,13 @@ void update_actors() {
 }
 
 //Hero has an invincibility counter that prevents it from being damaged continuously.
-//It also fires missiles.
+//It also fires tears.
 bool update_hero(actor_t *hero) {
 	static uint8_t button_count = 0;
 	lr_t edge_lr = at_edge_lr(hero);
 	ud_t edge_ud = at_edge_ud(hero);
 
-	//Update direction facing (needed for missiles) and position
+	//Update direction facing (needed for tears) and position
 	//TODO: face where shooting
 	if (ps2_x > LEFT_THRESHOLD) {
 		hero->lr = LEFT_d;
@@ -71,21 +71,21 @@ bool update_hero(actor_t *hero) {
 	}
 	else hero->lr = IDLE_lr;
 	if (ps2_y > UP_THRESHOLD) {
-		 hero->ud = UP;
-		 if (edge_ud != UP) hero->y_loc--;
+		 hero->ud = UP_d;
+		 if (edge_ud != UP_d) hero->y_loc--;
 	}
 	else if (ps2_y < DOWN_THRESHOLD) {
-		hero->ud = DOWN;
-		if (edge_ud != DOWN) hero->y_loc++;
+		hero->ud = DOWN_d;
+		if (edge_ud != DOWN_d) hero->y_loc++;
 	}
-	else hero->ud = DOWN;	//Want to default to facing down.
+	else hero->ud = DOWN_d;	//Want to default to facing down.
 
 
 	//Update collisions
 	if (!hero->count) { 
 		actor_t *enemy = actors->next;	//First actor is hero
 		while(enemy) {
-			if (enemy->type != MISSILE && detect_collision(hero, enemy)) {
+			if (enemy->type != TEAR && detect_collision(hero, enemy)) {
 				hero->count = HERO_INVINCIBILITY;
 				hero->health--;
 			}
@@ -94,48 +94,36 @@ bool update_hero(actor_t *hero) {
 	//Invincibility count is active, do not check collisions
 	else hero->count--;
 
-
-	//Check for button presses for new missile
-	//Button needs to be held for 40ms (4 interrupts) before missile fires
-	if (lp_io_read_pin(SW1_BIT)) {
-		//Make sure missile only fires once per button press, gets stuck at 5.
-		if (button_count <= 4) button_count++;
-		//Fire missile
-		if (button_count == 4) create_actor(MISSILE, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
-	}
-	else button_count = 0;
-
-
 	//Report aliveness (false for dead)
 	if (hero->health) return false;
 	else return true;
 }
 
 //Missile dies on contact with enemy, travels in straight line, and hurts enemies.
-bool update_missile(actor_t *missile) {
+bool update_tear(actor_t *tear) {
 	actor_t *enemy = actors->next;
 
 	//Check enemy collision
 	while(enemy) {
-		if (enemy->type != HERO && enemy->type != MISSILE && detect_collision(missile, enemy)) {
-			enemy->health -= MISSILE_DAMAGE;
+		if (enemy->type != HERO && enemy->type != TEAR && detect_collision(tear, enemy)) {
+			enemy->health -= TEAR_DAMAGE;
 			return true;
 		}
 		enemy = enemy->next;
 	}
 
 	//Check if off screen
-	if (at_edge_lr(missile) != IDLE || at_edge_ud(missile) != IDLE) {
+	if (at_edge_lr(tear) != IDLE_lr || at_edge_ud(tear) != IDLE_ud) {
 		return true;
 	}
 	
 	//Update position
-	if (missile->lr == LEFT_d) missile->x_loc--;
-	else missile->x_loc++;
-	if (missile->ud == UP) missile->y_loc--;
-	else missile->y_loc++;
+	if (tear->lr == LEFT_d) tear->x_loc--;
+	else tear->x_loc++;
+	if (tear->ud == UP_d) tear->y_loc--;
+	else tear->y_loc++;
 
-	//If we get here missile is still alive
+	//If we get here tear is still alive
 	return false;
 }
 
@@ -169,66 +157,66 @@ bool update_bat(actor_t *bat) {
 
 
 	//Detect if at edge of screen, switch movement direction
-	if (bat->lr = LEFT_d) {
+	if (bat->lr == LEFT_d) {
 		bat->x_loc--;
 		if (edge_lr == LEFT_d)
 			bat->lr = RIGHT_d;
 	}
-	else if (bat->lr = RIGHT_d) {
+	else if (bat->lr == RIGHT_d) {
 		bat->x_loc++;
 		if (edge_lr == RIGHT_d)
 			bat->lr = LEFT_d;
 	}
 
-	if (bat->ud = UP) {
+	if (bat->ud == UP_d) {
 		bat->y_loc--;
-		if (edge_ud == UP)
-			bat->ud = DOWN;
+		if (edge_ud == UP_d)
+			bat->ud = DOWN_d;
 	}
-	else if (bat->ud = DOWN) {
+	else if (bat->ud == DOWN_d) {
 		bat->y_loc++;
 		if (edge_ud == RIGHT_d)
-			bat->ud = UP;
+			bat->ud = UP_d;
 	}
 	return false;
 }
 
 //Blobs only move every so often. They have a counter that tells them when to move and when not to.
-bool update_blob(actor_t *blob) {
+bool update_slime(actor_t *slime) {
 
-	if (blob->health <= 0) return false;
+	if (slime->health <= 0) return false;
 
 	//Count reached, switch between moving and idle.
-	if (blob->count == BLOB_COUNT) {
-		if (blob->lr != IDLE || blob->ud != IDLE) {
-			blob->lr = IDLE;
-			blob->ud == IDLE;
+	if (slime->count == SLIME_COUNT) {
+		if (slime->lr != IDLE_lr || slime->ud != IDLE_ud) {
+			slime->lr = IDLE_lr;
+			slime->ud = IDLE_ud;
 		}
 		else { //We are idle, need to pick a direction to hop;
 			uint8_t hop_dir = rand();
 			//If we are odd, hop horizontal. Else hop vertical
 			if (hop_dir % 2) {
 				//If we are greater or equal to threshold, hop right. Else hop left.
-				if (hop_dir > HOP_THRESHOLD) blob->lr = RIGHT_d;
-				else blob->lr = RIGHT_d;
+				if (hop_dir > HOP_THRESHOLD) slime->lr = RIGHT_d;
+				else slime->lr = RIGHT_d;
 			}
 			else {
 				//If we are greater or equal to threshold, hop down. Else hop up.
-				if (hop_dir > HOP_THRESHOLD) blob->ud = DOWN;
-				else blob->ud = UP;
+				if (hop_dir > HOP_THRESHOLD) slime->ud = DOWN_d;
+				else slime->ud = UP_d;
 			}
 		}
-		blob->count = 0;
+		slime->count = 0;
 	}
-	else blob->count++;
+	else slime->count++;
 
 	//Actually move.
-	lr_t edge_lr = at_edge_lr(blob);
-	ud_t edge_ud = at_edge_ud(blob);
-	if (blob->lr == LEFT_d && edge_lr != LEFT_d) blob->x_loc--;
-	else if (blob->lr == RIGHT_d && edge_lr != RIGHT_d) blob->x_loc++;
-	else if (blob->ud == UP && edge_lr != UP) blob->y_loc--;
-	else if (blob->ud == DOWN && edge_lr != DOWN) blob->y_loc++;
+	lr_t edge_lr = at_edge_lr(slime);
+	ud_t edge_ud = at_edge_ud(slime);
+	if (slime->lr == LEFT_d && edge_lr != LEFT_d) slime->x_loc--;
+	else if (slime->lr == RIGHT_d && edge_lr != RIGHT_d) slime->x_loc++;
+	else if (slime->ud == UP_d && edge_lr != UP_d) slime->y_loc--;
+	else if (slime->ud == DOWN_d && edge_lr != DOWN_d) slime->y_loc++;
 	return true;
 }
 
@@ -241,43 +229,43 @@ bool update_mimic(actor_t *mimic) {
 	ud_t edge_ud = at_edge_ud(mimic);
 	if (ps2_x > LEFT_THRESHOLD && edge_lr != LEFT_d) mimic->x_loc--;
 	else if (ps2_x < RIGHT_THRESHOLD && edge_lr != RIGHT_d) mimic->x_loc++;
-	if (ps2_y > UP_THRESHOLD && edge_ud != UP) mimic->y_loc--;
-	else if (ps2_y < DOWN_THRESHOLD && edge_ud != DOWN) mimic->y_loc++;
+	if (ps2_y > UP_THRESHOLD && edge_ud != UP_d) mimic->y_loc--;
+	else if (ps2_y < DOWN_THRESHOLD && edge_ud != DOWN_d) mimic->y_loc++;
 	return false;
 }
 
 actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 	actor_t *actor = malloc(sizeof(actor));
-	if (type == MISSILE) {
-		actor->bitmap = &missleBitmap;
-		actor->clear_bitmap = &missileErase;
-		actor->height = MISSILE_HEIGHT;
-		actor->width = MISSILE_WIDTH;
+	if (type == TEAR) {
+		actor->bitmap = (uint8_t*)tearBitmap;
+		actor->clear_bitmap = (uint8_t*)tearErase;
+		actor->height = TEAR_HEIGHT;
+		actor->width = TEAR_WIDTH;
 	}
 	else if (type == ZOMBIE) {
-		actor->bitmap = &zombieBitmap;
-		actor->clear_bitmap = &zombieErase;
+		actor->bitmap = (uint8_t*)zombieBitmap;
+		actor->clear_bitmap = (uint8_t*)zombieErase;
 		actor->height = ZOMBIE_HEIGHT;
 		actor->width = ZOMBIE_WIDTH;
 		actor->health = ZOMBIE_HEALTH;
 	}
 	else if (type == BAT) {
-		actor->bitmap = &batBitmap;
-		actor->clear_bitmap = &batErase;
+		actor->bitmap = (uint8_t*)batBitmap;
+		actor->clear_bitmap = (uint8_t*)batErase;
 		actor->height = BAT_HEIGHT;
 		actor->width = BAT_WIDTH;
 		actor->health = BAT_HEALTH;
 	}
-	else if (type == BLOB) {
-		actor->bitmap = &blobBitmap;
-		actor->clear_bitmap = &blobErase;
-		actor->height = BLOB_HEIGHT;
-		actor->width = BLOB_WIDTH;
-		actor->health = BLOB_HEALTH;
+	else if (type == SLIME) {
+		actor->bitmap = (uint8_t*)slimeBitmap;
+		actor->clear_bitmap = (uint8_t*)slimeErase;
+		actor->height = SLIME_HEIGHT;
+		actor->width = SLIME_WIDTH;
+		actor->health = SLIME_HEALTH;
 	}
-	else if (typ == MIMIC) {
-		actor->bitmap = &mimicBitmap;
-		actor->clear_bitmap = &mimicErase;
+	else if (type == MIMIC) {
+		actor->bitmap = (uint8_t*)mimicBitmap;
+		actor->clear_bitmap = (uint8_t*)mimicErase;
 		actor->height = MIMIC_HEIGHT;
 		actor->width = MIMIC_WIDTH;
 		actor->health = MIMIC_HEALTH;
@@ -304,20 +292,20 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 //returns LEFT if the actor is at the left edge of the screen
 //returns RIGHT if the actor is at the right edge of the screen
 //else returns IDLE.
-lr_t at_edge_lr(actor_t actor) {
+lr_t at_edge_lr(actor_t *actor) {
 	if (actor->x_loc < actor->width / 2) return LEFT_d;
 	if (actor->y_loc > COLS - actor->width / 2) return RIGHT_d;
-	return IDLE;
+	return IDLE_lr;
 }
 
 //Detects if an actor is at an edge.
 //returns UP if the actor is at the top edge of the screen
 //returns DOWN if the actor is at the bottom edge of the screen
 //Else returns IDLE.
-ud_t at_edge_ud(actor_t actor) {
-	if (actor->y_loc < actor->height / 2) return UP;
-	if (actor->y_loc > ROWS - actor->height / 2) return DOWN;
-	return IDLE;
+ud_t at_edge_ud(actor_t *actor) {
+	if (actor->y_loc < actor->height / 2) return UP_d;
+	if (actor->y_loc > ROWS - actor->height / 2) return DOWN_d;
+	return IDLE_ud;
 }
 
 bool detect_collision(actor_t *a, actor_t *b) {
@@ -341,25 +329,13 @@ bool detect_collision(actor_t *a, actor_t *b) {
 	else return true;
 }
 
-//Adds new missle object to actors
-void fire_missle(void) {
-	struct missle *newMissle = malloc(sizeof(struct missle));
-	newMissle->x_loc = hero.x_loc;
-	newMissle->y_loc = hero.y_loc - HERO_HEIGHT / 2;
-	newMissle->nxt = NULL;
-	if (m_head == NULL)
-		m_head = newMissle;
-	else
-		m_tail->nxt = newMissle;
-	m_tail = newMissle;
-}
 
 void destroy(actor_t *actor) {
 	lcd_draw_image(
 		actor->x_loc,	 // X Pos
-		actor_width,	  // Image Horizontal Width
+		actor->width,	  // Image Horizontal Width
 		actor->y_loc, // Y Pos
-		actor_height,	 // Image Vertical Height
+		actor->height,	 // Image Vertical Height
 		actor->clear_bitmap,	   // Image
 		LCD_COLOR_BLACK,  // Foreground Color
 		LCD_COLOR_BLACK	// Background Color
@@ -372,9 +348,9 @@ void draw_actors(void) {
 	while(actor) {
 		lcd_draw_image(
 			actor->x_loc,		 // X Pos
-			actor_width,		 // Image Horizontal Width
+			actor->width,		 // Image Horizontal Width
 			actor->y_loc,		 // Y Pos
-			actor_height,		 // Image Vertical Height
+			actor->height,		 // Image Vertical Height
 			actor->clear_bitmap, // Image
 			LCD_COLOR_WHITE,	 // Foreground Color
 			LCD_COLOR_BLACK		 // Background Color

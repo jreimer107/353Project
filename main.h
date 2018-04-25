@@ -25,12 +25,15 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "TM4C123.h"
 #include "driver_defines.h"
 #include "gpio_port.h"
 #include "serial_debug.h"
 #include "validate.h"
+#include "i2c.h"
+#include "MCP23017.h"
 
 #define TICKS 62500
 #define LED_CYCLE 20
@@ -56,6 +59,8 @@ extern void initialize_serial_debug(void);
 void update_red_led(void);
 void update_green_led(void);
 void update_hero_dir(void);
+void debounce_buttons(void);
+bool fire_on_press(void);
 void draw(void);
 
 
