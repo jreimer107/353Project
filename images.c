@@ -1,14 +1,8 @@
-<<<<<<< HEAD
- #include "images.h"
+#include "images.h"
+
 
 // 
 //  Image data for bat2
-=======
-#include "images.h"
-
-// 
-//  Image data for hero
->>>>>>> e2e82bc2c6ebfeaaa292efdd85e8f850ad277a8e
 // 
 
 const uint8_t batBitmap[] =
@@ -37,18 +31,11 @@ const uint8_t batBitmap[] =
 	0x00, 0x00, 0x00, 0x00, 0x00, //                                         
 };
 
-// 
-<<<<<<< HEAD
-//  Image data for steve
-// 
-
-const uint8_t steveBitmap[] =
-=======
+//
 //  Image data for hero
 // 
 
 const uint8_t heroBitmap[] =
->>>>>>> e2e82bc2c6ebfeaaa292efdd85e8f850ad277a8e
 {
 	0x00, 0x00, 0x00, //                       
 	0x00, 0xFC, 0x00, //         ######        
