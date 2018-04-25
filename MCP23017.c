@@ -1,4 +1,4 @@
-#include "eeprom.h"
+#include "MCP23017.h"
 
 //*****************************************************************************
 // Used to determine if the EEPROM is busy writing the last transaction to 
@@ -162,47 +162,11 @@ i2c_status_t mcp_byte_read
 //*****************************************************************************
 // Initialize the I2C peripheral
 //*****************************************************************************
-bool mcp_init(void)
-{
-  
-  if(gpio_enable_port(MCP_GPIO_BASE) == false)
-  {
-    return false;
-  }
-  
-  // Configure SCL 
-  if(gpio_config_digital_enable(MCP_GPIO_BASE, SW2_IO_EXPANDER_INT)== false)
-  {
-    return false;
-  }
-    
-//  if(gpio_config_alternate_function(MCP_GPIO_BASE, MCP_I2C_SCL_PIN)== false)
-//  {
-//    return false;
-//  }
-    
-  if(gpio_config_port_control(MCP_GPIO_BASE, SW2_IO_EXPANDER_INT)== false)
-  {
-    return false;
-  }
-    
-	if(gpio_config_enable_input(MCP_GPIO_BASE, SW2_IO_EXPANDER_INT) == false){
-		return false
-	}
- 
-  
-  return true;
-  
-}
 
 bool button_init(void)
 {
-	//Wrong base?
-	mcp_byte_write(MCP_I2C_BASE, IOCON, 0xB0);
-	mcp_byte_write(i2cbase, address, data);
 	mcp_byte_write(MCP_I2C_BASE, IODIRB, 0xF0);
 	mcp_byte_write(MCP_I2C_BASE, GPINTENB, 0xFF);
-	mcp_byte_write(MCP_I2C_BASE, DEFVALB, 0xFF);
 	mcp_byte_write(MCP_I2C_BASE, INTCONB, 0x00);
 	mcp_byte_write(MCP_I2C_BASE, GGPUB, 0xFF);
 	

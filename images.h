@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 // Bitmap sizes for bat
->>>>>>> Stashed changes
 #define BAT_WIDTH 40
 #define BAT_HEIGHT 22
 //Bitmap sizes for Steve

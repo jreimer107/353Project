@@ -27,13 +27,13 @@
 #define   EEPROM_I2C_SDA_PCTL_M     GPIO_PCTL_PA7_M
 #define   EEPROM_I2C_SDA_PIN_PCTL  	GPIO_PCTL_PA7_I2C1SDA
 
-#define		IODIRB		0x10
-#define		GPINTENB	0x12
-#define		DEFVALB		0x13
-#define		INTCONB		0x14
-#define		IOCON			0x05
-#define		GGPUB			0x16
-#define		INTFB			0x17
+#define		IODIRB		0x01	//IO direction
+#define		GPINTENB	0x05	//Interupt enable
+//#define		DEFVALB		0x07
+#define		INTCONB		0x09	//Interupt on change
+#define		GGPUB			0x0D	//Pull Up resistors
+//#define		INTFB			0x0F	//Int Flag Register
+#define 	GPIOBMCP	0x13		//GPIO Pin
 
 //*****************************************************************************
 // Writes a single byte of data out to the  MCP24LC32AT EEPROM.  

@@ -410,6 +410,16 @@
               <FileType>5</FileType>
               <FilePath>.\actors.h</FilePath>
             </File>
+            <File>
+              <FileName>MCP23017.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MCP23017.c</FilePath>
+            </File>
+            <File>
+              <FileName>MCP23017.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\MCP23017.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
