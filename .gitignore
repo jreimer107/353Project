@@ -2,6 +2,7 @@
 *.htm
 *.lnp
 .vscode/c_cpp_properties.json
-*.uvoptx
-*.uvprojx
-*.jreimer2
+BoS.uvoptx
+BoS.uvprojx
+BoS.uvguix.jreimer2
+BoS.uvguix.lrichmond2

@@ -52,6 +52,7 @@ volatile bool button_press = false;
 TIMER0_Type* gp_timer;
 GPIOA_Type* portf;
 ADC0_Type* myadc;
+I2C0_Type* i2c_base;
 
 
 //*****************************************************************************
@@ -100,6 +101,8 @@ void GPIOF_Handler(void) {
 	//clear icr of gpiof
 	portf->ICR |= GPIO_ICR_GPIO_M;
 	//read interrupt flag register ifr of port expander
+	
+	
 }
 
 
@@ -114,7 +117,9 @@ main(void)
 	hero->y_loc = ROWS/2;
 	gp_timer = (TIMER0_Type*)TIMER0_BASE;
 	myadc = (ADC0_Type*)ADC0_BASE;
-  	initialize_hardware();
+	portf = (GPIOA_Type*)GPIOF_BASE;
+	i2c_base = (I2C0_Type*)I2C1_BASE;
+	initialize_hardware();
 	gp_timer_start_16(TIMER0_BASE, 7, 15, TICKS, TICKS);
 
   put_string("\n\r");
