@@ -29,5 +29,6 @@ extern const uint8_t batBitmap[];
 extern const uint8_t tearBitmap[];
 extern const uint8_t zombieBitmap[];
 extern const uint8_t slimeBitmap[];
+extern const uint8_t mimicBitmap[];
 
 #endif

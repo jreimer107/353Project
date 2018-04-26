@@ -44,7 +44,7 @@ actor_t *hero;
 //enemy_t *enemy_head = NULL;
 //actor_t *actor = NULL;
 
-static uint16_t ps2_x, ps2_y;
+uint16_t ps2_x, ps2_y;
 
 //Flags set by interrupt handlers
 volatile bool TimerA_Done = false;
@@ -54,7 +54,7 @@ volatile uint8_t button_count = 0;
 TIMER0_Type* gp_timer;
 GPIOA_Type* portf;
 ADC0_Type* myadc;
-I2C0_Type* i2c_base;
+//I2C0_Type i2c_base = (I2C0_Type*)I2C1_BASE;
 
 uint8_t buttons_current;
 bool buttons_pressed[4];
@@ -114,7 +114,7 @@ void GPIOF_Handler(void) {
 	//clear icr of gpiof
 	portf->ICR |= GPIO_ICR_GPIO_M;
 	//read Gpiob of port expander
-	mcp_byte_read(i2c_base, GPIOBMCP, &buttons_current;
+	mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
 }
 
 
@@ -124,13 +124,12 @@ int
 main(void)
 {
 	//Initialize hero location, timer, and adc.
+	hero_init();
 	hero = actors;
-	hero->x_loc = COLS/2;
-	hero->y_loc = ROWS/2;
 	gp_timer = (TIMER0_Type*)TIMER0_BASE;
 	myadc = (ADC0_Type*)ADC0_BASE;
 	portf = (GPIOA_Type*)GPIOF_BASE;
-	i2c_base = (I2C0_Type*)I2C1_BASE;
+	//i2c_base = (I2C0_Type*)I2C1_BASE;
 	initialize_hardware();
 	gp_timer_start_16(TIMER0_BASE, 7, 15, TICKS, TICKS);
 
@@ -156,10 +155,10 @@ main(void)
 		if (TimerB_Done) {
 			update_green_led();
 			get_ps2_value(ADC0_BASE);
-			update_hero_dir();
+			update_actors();
 			//Shoot tears
 			if(button_count) {
-				mcp_byte_read(i2c_base, GPIOBMCP, &buttons_current;
+				mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
 				debounce_buttons();
 				tear_fired = fire_on_press();
 				if (tear_fired) button_count = TEAR_RATE;
@@ -177,7 +176,7 @@ main(void)
 
 		
 		
-		draw();
+		draw_actors();
   }
 }
 

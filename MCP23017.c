@@ -75,7 +75,7 @@ i2c_status_t mcp_byte_write
 		status = i2cSetSlaveAddr(i2c_base, MCP24LC32AT_DEV_ID, I2C_WRITE);
   
   // If the EEPROM is still writing the last byte written, wait
-  eeprom_wait_for_write(i2c_base);
+  mcp_wait_for_write(i2c_base);
   
   //==============================================================
   // Send the Upper byte of the address
@@ -125,7 +125,7 @@ i2c_status_t mcp_byte_read
   while ( I2CMasterBusy(i2c_base)) {};
 
   // If the EEPROM is still writing the last byte written, wait
-  eeprom_wait_for_write(i2c_base);
+  mcp_wait_for_write(i2c_base);
 
   //==============================================================
   // Set the I2C slave address to be the EEPROM and in Write Mode
@@ -163,7 +163,7 @@ i2c_status_t mcp_byte_read
 // Initialize the I2C peripheral
 //*****************************************************************************
 
-bool button_init(void)
+bool mcp_init(void)
 {
 	mcp_byte_write(MCP_I2C_BASE, IODIRB, 0xF0);
 	mcp_byte_write(MCP_I2C_BASE, GPINTENB, 0xFF);

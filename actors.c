@@ -183,6 +183,8 @@ bool update_bat(actor_t *bat) {
 
 //Blobs only move every so often. They have a counter that tells them when to move and when not to.
 bool update_slime(actor_t *slime) {
+	lr_t edge_lr = at_edge_lr(slime);
+	ud_t edge_ud = at_edge_ud(slime);
 
 	if (slime->health <= 0) return false;
 
@@ -211,8 +213,6 @@ bool update_slime(actor_t *slime) {
 	else slime->count++;
 
 	//Actually move.
-	lr_t edge_lr = at_edge_lr(slime);
-	ud_t edge_ud = at_edge_ud(slime);
 	if (slime->lr == LEFT_d && edge_lr != LEFT_d) slime->x_loc--;
 	else if (slime->lr == RIGHT_d && edge_lr != RIGHT_d) slime->x_loc++;
 	else if (slime->ud == UP_d && edge_lr != UP_d) slime->y_loc--;
@@ -222,11 +222,11 @@ bool update_slime(actor_t *slime) {
 
 //Mimics, surprisingly, mimic the movement of the player, but slower (same speed, faster? variants?)
 bool update_mimic(actor_t *mimic) {
-
-	if (mimic->health <= 0) return true;
-
 	lr_t edge_lr = at_edge_lr(mimic);
 	ud_t edge_ud = at_edge_ud(mimic);
+	
+	if (mimic->health <= 0) return true;
+	
 	if (ps2_x > LEFT_THRESHOLD && edge_lr != LEFT_d) mimic->x_loc--;
 	else if (ps2_x < RIGHT_THRESHOLD && edge_lr != RIGHT_d) mimic->x_loc++;
 	if (ps2_y > UP_THRESHOLD && edge_ud != UP_d) mimic->y_loc--;
@@ -238,37 +238,47 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 	actor_t *actor = malloc(sizeof(actor));
 	if (type == TEAR) {
 		actor->bitmap = (uint8_t*)tearBitmap;
-		actor->clear_bitmap = (uint8_t*)tearErase;
+//	actor->clear_bitmap = (uint8_t*)tearErase;
 		actor->height = TEAR_HEIGHT;
 		actor->width = TEAR_WIDTH;
+		actor->speed = MAX_SPEED - TEAR_SPEED + 1;
+		actor->move_count = 0;
 	}
 	else if (type == ZOMBIE) {
 		actor->bitmap = (uint8_t*)zombieBitmap;
-		actor->clear_bitmap = (uint8_t*)zombieErase;
+//	actor->clear_bitmap = (uint8_t*)zombieErase;
 		actor->height = ZOMBIE_HEIGHT;
 		actor->width = ZOMBIE_WIDTH;
 		actor->health = ZOMBIE_HEALTH;
+		actor->speed = MAX_SPEED - ZOMBIE_SPEED + 1;
+		actor->move_count = 0;		
 	}
 	else if (type == BAT) {
 		actor->bitmap = (uint8_t*)batBitmap;
-		actor->clear_bitmap = (uint8_t*)batErase;
+//	actor->clear_bitmap = (uint8_t*)batErase;
 		actor->height = BAT_HEIGHT;
 		actor->width = BAT_WIDTH;
 		actor->health = BAT_HEALTH;
+		actor->speed = MAX_SPEED - BAT_SPEED + 1;
+		actor->move_count = 0;		
 	}
 	else if (type == SLIME) {
 		actor->bitmap = (uint8_t*)slimeBitmap;
-		actor->clear_bitmap = (uint8_t*)slimeErase;
+//	actor->clear_bitmap = (uint8_t*)slimeErase;
 		actor->height = SLIME_HEIGHT;
 		actor->width = SLIME_WIDTH;
 		actor->health = SLIME_HEALTH;
+		actor->speed = MAX_SPEED - SLIME_SPEED + 1;
+		actor->move_count = 0;		
 	}
 	else if (type == MIMIC) {
 		actor->bitmap = (uint8_t*)mimicBitmap;
-		actor->clear_bitmap = (uint8_t*)mimicErase;
+//	actor->clear_bitmap = (uint8_t*)mimicErase;
 		actor->height = MIMIC_HEIGHT;
 		actor->width = MIMIC_WIDTH;
 		actor->health = MIMIC_HEALTH;
+		actor->speed = MAX_SPEED - MIMIC_SPEED + 1;
+		actor->move_count = 0;
 	}
 
 	actor->lr = lr;
@@ -285,16 +295,13 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 	return actor;
 }
 
-
-
-
 //Detects if an actor is at an edge.
 //returns LEFT if the actor is at the left edge of the screen
 //returns RIGHT if the actor is at the right edge of the screen
 //else returns IDLE.
 lr_t at_edge_lr(actor_t *actor) {
-	if (actor->x_loc < actor->width / 2) return LEFT_d;
-	if (actor->y_loc > COLS - actor->width / 2) return RIGHT_d;
+	if (actor->x_loc < actor->width / 2 + 1) return LEFT_d;
+	if (actor->x_loc > COLS - actor->width / 2 - 1) return RIGHT_d;
 	return IDLE_lr;
 }
 
@@ -303,8 +310,8 @@ lr_t at_edge_lr(actor_t *actor) {
 //returns DOWN if the actor is at the bottom edge of the screen
 //Else returns IDLE.
 ud_t at_edge_ud(actor_t *actor) {
-	if (actor->y_loc < actor->height / 2) return UP_d;
-	if (actor->y_loc > ROWS - actor->height / 2) return DOWN_d;
+	if (actor->y_loc < actor->height / 2  + 1) return UP_d;
+	if (actor->y_loc > ROWS - actor->height / 2 - 1) return DOWN_d;
 	return IDLE_ud;
 }
 
@@ -336,7 +343,7 @@ void destroy(actor_t *actor) {
 		actor->width,	  // Image Horizontal Width
 		actor->y_loc, // Y Pos
 		actor->height,	 // Image Vertical Height
-		actor->clear_bitmap,	   // Image
+		actor->bitmap,	   // Image
 		LCD_COLOR_BLACK,  // Foreground Color
 		LCD_COLOR_BLACK	// Background Color
 	);
@@ -351,10 +358,31 @@ void draw_actors(void) {
 			actor->width,		 // Image Horizontal Width
 			actor->y_loc,		 // Y Pos
 			actor->height,		 // Image Vertical Height
-			actor->clear_bitmap, // Image
+			actor->bitmap, // Image
 			LCD_COLOR_WHITE,	 // Foreground Color
 			LCD_COLOR_BLACK		 // Background Color
 		);
 		actor = actor->next;
 	}
 }
+
+void hero_init(void){
+	actor_t *hero;
+	actors = malloc(sizeof(actor_t));
+	hero = actors;
+	hero->bitmap = (uint8_t*)&heroBitmap;
+	//hero->clear_bitmap = (uint8_t*)&heroErase;
+	hero->count = 0;
+	hero->health = PLAYER_HEALTH;
+	hero->height = STEVE_HEIGHT;
+	hero->width = STEVE_WIDTH;
+	hero->lr = IDLE_lr;
+	hero->ud = IDLE_ud;
+	hero->move_count = 0;
+	hero->speed = PLAYER_SPEED;
+	hero->type = HERO;
+	hero->x_loc = COLS / 2;
+	hero->y_loc = ROWS /2;
+	hero->next = NULL;
+}
+
