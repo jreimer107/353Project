@@ -12,8 +12,9 @@
 .\obj\main.o: C:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123\system_TM4C123.h
 .\obj\main.o: ..\drivers\include\driver_defines.h
 .\obj\main.o: C:\ProgramData\App-V\DE50D8B9-402F-4CAC-9DEA-99ADC8882CA4\8A984B0A-A990-4F1D-B426-7065E242CA63\Root\ARM\ARMCC\bin\..\include\errno.h
-.\obj\main.o: ..\drivers\include\gpio_port.h
+.\obj\main.o: gpio_port.h
 .\obj\main.o: ..\peripherals\include\serial_debug.h
+.\obj\main.o: ..\drivers\include\gpio_port.h
 .\obj\main.o: ..\drivers\include\pc_buffer.h
 .\obj\main.o: C:\ProgramData\App-V\DE50D8B9-402F-4CAC-9DEA-99ADC8882CA4\8A984B0A-A990-4F1D-B426-7065E242CA63\Root\ARM\ARMCC\bin\..\include\stdlib.h
 .\obj\main.o: ..\drivers\include\uart.h

@@ -87,9 +87,14 @@ void initialize_hardware(void) {
 	eeprom_init();
 	
 	//Initialize port expander
-	mcp_init();
+	if(mcp_init() == false){
+		while(1){}
+	}
 	
-	gpio_config_falling_edge_irq(adsf);
+	
+	gpio_config_falling_edge_irq(GPIOF_BASE, SW2_IO_EXPANDER_INT);
+	NVIC_SetPriority(GPIOF_IRQn, 0);
+  NVIC_EnableIRQ(GPIOF_IRQn);
 	
 }
 

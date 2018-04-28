@@ -72,7 +72,11 @@ bool update_hero(actor_t *hero) {
 				hero->count = HERO_INVINCIBILITY;
 				hero->health--;
 			}
+<<<<<<< Updated upstream
 			enemy = enemy->next;
+=======
+			enemy = enemy -> next;
+>>>>>>> Stashed changes
 		}
 	}
 	//Invincibility count is active, do not check collisions

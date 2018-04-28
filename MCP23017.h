@@ -53,7 +53,7 @@
 i2c_status_t mcp_byte_write
 ( 
   uint32_t  i2c_base,
-  uint16_t  mcpDataAddress,
+  uint8_t  mcpDataAddress,
   uint8_t   data
 );
 
@@ -74,7 +74,7 @@ i2c_status_t mcp_byte_write
 i2c_status_t mcp_byte_read
 ( 
   uint32_t  i2c_base,
-  uint16_t  address,
+  uint8_t  address,
   uint8_t   *data
 );
 
