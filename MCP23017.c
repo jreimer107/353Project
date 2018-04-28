@@ -74,20 +74,12 @@ i2c_status_t mcp_byte_write
   //==============================================================
 		status = i2cSetSlaveAddr(i2c_base, MCP24LC32AT_DEV_ID, I2C_WRITE);
   
-  // If the EEPROM is still writing the last byte written, wait
-  mcp_wait_for_write(i2c_base);
-  
-  //==============================================================
-  // Send the Upper byte of the address
-	// ADD CODE	
-  //==============================================================
-	status = i2cSendByte(i2c_base, address >> 8, I2C_MCS_START | I2C_MCS_RUN);
 		
   //==============================================================
   // Send the Lower byte of the address
 	// ADD CODE
   //==============================================================
-  status = i2cSendByte(i2c_base, (uint8_t)address, I2C_MCS_RUN);
+  status = i2cSendByte(i2c_base, (uint8_t)address, I2C_MCS_START | I2C_MCS_RUN);
 	
   //==============================================================
   // Send the Byte of data to write
@@ -124,8 +116,6 @@ i2c_status_t mcp_byte_read
   // Before doing anything, make sure the I2C device is idle
   while ( I2CMasterBusy(i2c_base)) {};
 
-  // If the EEPROM is still writing the last byte written, wait
-  mcp_wait_for_write(i2c_base);
 
   //==============================================================
   // Set the I2C slave address to be the EEPROM and in Write Mode
@@ -134,16 +124,10 @@ i2c_status_t mcp_byte_read
 	status = i2cSetSlaveAddr(i2c_base, MCP24LC32AT_DEV_ID, I2C_WRITE);
 
   //==============================================================
-  // Send the Upper byte of the address
-	// ADD CODE
-  //==============================================================
-		status = i2cSendByte(i2c_base, address >> 8, I2C_MCS_START | I2C_MCS_RUN);
-
-  //==============================================================
   // Send the Lower byte of the address
 	// ADD CODE
   //==============================================================
-	status = i2cSendByte(i2c_base, (uint8_t)address, I2C_MCS_RUN);
+	status = i2cSendByte(i2c_base, (uint8_t)address, I2C_MCS_START | I2C_MCS_RUN | I2C_MCS_STOP);
 
   //==============================================================
   // Set the I2C slave address to be the EEPROM and in Read Mode
@@ -165,10 +149,11 @@ i2c_status_t mcp_byte_read
 
 bool mcp_init(void)
 {
-	mcp_byte_write(MCP_I2C_BASE, IODIRB, 0xF0);
-	mcp_byte_write(MCP_I2C_BASE, GPINTENB, 0xFF);
+	mcp_byte_write(MCP_I2C_BASE, IODIRB, 0xFF);
+	mcp_byte_write(MCP_I2C_BASE, GPINTENB, 0x0F);
 	mcp_byte_write(MCP_I2C_BASE, INTCONB, 0x00);
 	mcp_byte_write(MCP_I2C_BASE, GGPUB, 0xFF);
+	
 	
 }
 

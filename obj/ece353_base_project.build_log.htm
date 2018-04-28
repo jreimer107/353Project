@@ -22,60 +22,63 @@ Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
 I:\ECE353\353Project\BoS.uvprojx
-Project File Date:  04/23/2018
+Project File Date:  04/27/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Rebuild target 'HW2'
 compiling images.c...
-images.c(1): error:  #169: expected a declaration
-  <<<<<<< HEAD
-images.h(35): warning:  #1-D: last line of file ends without a newline
+images.h(34): warning:  #1-D: last line of file ends without a newline
   #endif
-images.c(6): error:  #169: expected a declaration
-  =======
-images.c(38): warning:  #12-D: parsing restarts here after previous syntax error
-  };
-images.c(41): error:  #169: expected a declaration
-  <<<<<<< HEAD
-images.c(95): warning:  #12-D: parsing restarts here after previous syntax error
-  };
-images.c: 3 warnings, 3 errors
+images.c: 1 warning, 0 errors
 compiling main.c...
-images.h(35): warning:  #1-D: last line of file ends without a newline
+images.h(34): warning:  #1-D: last line of file ends without a newline
   #endif
-main.c(37): error:  #20: identifier "hero_t" is undefined
-  hero_t hero;
-main.c(42): error:  #20: identifier "enemy_t" is undefined
-  enemy_t *enemy_head = NULL;
-main.c(43): error:  #20: identifier "actor_t" is undefined
-  actor_t *actor = NULL;
-main.c(72): warning:  #223-D: function "ps2_initialize_SS2" declared implicitly
-  	ps2_initialize_SS2();
-main.c(128): warning:  #223-D: function "get_ps2_value" declared implicitly
-  			get_ps2_value(ADC0_BASE);
-main.c(45): warning:  #550-D: variable "ps2_x"  was set but never used
-  static uint16_t ps2_x, ps2_y;
-main.c(45): warning:  #550-D: variable "ps2_y"  was set but never used
-  static uint16_t ps2_x, ps2_y;
-main.c: 5 warnings, 3 errors
-compiling adc.c...
+actors.h(88): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\peripherals\include\eeprom.h(9): warning:  #47-D: incompatible redefinition of macro "MCP24LC32AT_DEV_ID"  (declared at line 10 of "MCP23017.h")
+  #define MCP24LC32AT_DEV_ID			0x50
+main.c: 3 warnings, 0 errors
+compiling actors.c...
+images.h(34): warning:  #1-D: last line of file ends without a newline
+  #endif
+actors.h(88): warning:  #1-D: last line of file ends without a newline
+  #endif
+actors.c(58): warning:  #177-D: variable "button_count"  was declared but never referenced
+  	static uint8_t button_count = 0;
+actors.c: 3 warnings, 0 errors
+compiling MCP23017.c...
+MCP23017.c(123): warning:  #550-D: variable "status"  was set but never used
+    i2c_status_t status;
+MCP23017.c(174): warning:  #940-D: missing return statement at end of non-void function "mcp_init" 
+  }
+MCP23017.c: 2 warnings, 0 errors
 compiling gpio_port.c...
 ..\drivers\c\gpio_port.c(82): warning:  #188-D: enumerated type mixed with another type
          return 0;
 ..\drivers\c\gpio_port.c(432): warning:  #177-D: variable "gpioPort"  was declared but never referenced
     GPIOA_Type  *gpioPort;
 ..\drivers\c\gpio_port.c: 2 warnings, 0 errors
+compiling adc.c...
 compiling timers.c...
-..\drivers\c\timers.c(246): warning:  #940-D: missing return statement at end of non-void function "gp_timer_start_16" 
+..\drivers\c\timers.c(328): warning:  #1-D: last line of file ends without a newline
   }
-..\drivers\c\timers.c: 1 warning, 0 errors
+..\drivers\c\timers.c(328): warning:  #940-D: missing return statement at end of non-void function "pwm_timer_config" 
+  }
+..\drivers\c\timers.c: 2 warnings, 0 errors
+compiling i2c.c...
 compiling launchpad_io.c...
-assembling startup_TM4C123.s...
 compiling lcd.c...
 compiling ps2.c...
+compiling eeprom.c...
+..\peripherals\c\eeprom.c(122): warning:  #550-D: variable "status"  was set but never used
+    i2c_status_t status;
+..\peripherals\c\eeprom.c: 1 warning, 0 errors
+assembling startup_TM4C123.s...
 compiling system_TM4C123.c...
-".\obj\ece353_base_project.axf" - 6 Error(s), 11 Warning(s).
+linking...
+Program Size: Code=10240 RO-data=1432 RW-data=100 ZI-data=4100  
+".\obj\ece353_base_project.axf" - 0 Error(s), 14 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -99,13 +102,12 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: Keil::Device:Startup:1.0.1
-      Source file:   Device\Source\ARM\startup_TM4C123.s
       Include file:  Device\Include\TM4C123\TM4C123.h
       Source file:   Device\Source\system_TM4C123.c
+      Source file:   Device\Source\ARM\startup_TM4C123.s
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Target not created.
-Build Time Elapsed:  00:00:11
+Build Time Elapsed:  00:00:13
 </pre>
 </body>
 </html>

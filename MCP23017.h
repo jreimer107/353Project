@@ -6,7 +6,8 @@
 #include "i2c.h"
 #include "gpio_port.h"
 
-#define MCP24LC32AT_DEV_ID			0x20
+//Look at the schematic for reasoning.
+#define MCP24LC32AT_DEV_ID			0x27
 #define EEPROM_TEST_NUM_BYTES    20
 
 //*****************************************************************************
@@ -17,7 +18,7 @@
 #define   MCP_I2C_BASE          	I2C1_BASE
 #define   MCP_I2C_SCL_PIN       	PA6
 #define  	MCP_I2C_SDA_PIN       	PA7
-#define		SW2_IO_EXPANDER_INT			19 
+#define		SW2_IO_EXPANDER_INT			19
 #define		UP_BUTTON_PIN						1
 #define		DOWN_BUTTON_PIN					2
 #define		LEFT_BUTTON_PIN					3

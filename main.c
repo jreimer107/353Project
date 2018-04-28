@@ -79,6 +79,7 @@ void initialize_hardware(void) {
 	lp_io_clear_pin(GREEN_BIT);
 	
 	//// Setup ADC to convert on PS2 joystick using SS2 and interrupts ////
+	
 	ps2_initialize_SS2();
 	
 	//Initialize EEPROM
@@ -86,6 +87,8 @@ void initialize_hardware(void) {
 	
 	//Initialize port expander
 	mcp_init();
+	
+	gpio_config_falling_edge_irq(adsf);
 	
 }
 
@@ -154,6 +157,8 @@ main(void)
 		
 		if (TimerB_Done) {
 			update_green_led();
+			
+			
 			get_ps2_value(ADC0_BASE);
 			update_actors();
 			//Shoot tears
