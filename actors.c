@@ -10,10 +10,11 @@ extern uint16_t ps2_x, ps2_y;
 //2. Update the actor's state based on any collisions.
 //3. Complete any type-specific actions.
 //4. Report the aliveness of the actor.
-void update_actors() {
+uint8_t update_actors() {
 	actor_t *curr_actor = actors;
 	actor_t *prev_actor = NULL;
 	bool kill;
+	uint8_t killed = 0;
 	while (curr_actor) {
 		if (curr_actor->type == HERO) {
 			kill = update_hero(curr_actor);
@@ -45,11 +46,13 @@ void update_actors() {
 			}
 			free(curr_actor);
 			curr_actor = prev_actor;
+			killed++;
 		}
 
 		prev_actor = curr_actor;
 		curr_actor = curr_actor->next;
 	}
+	return killed;
 }
 
 //Hero has an invincibility counter that prevents it from being damaged continuously.
@@ -59,27 +62,7 @@ bool update_hero(actor_t *hero) {
 	lr_t edge_lr = at_edge_lr(hero);
 	ud_t edge_ud = at_edge_ud(hero);
 
-	//Update direction facing (needed for tears) and position
-	//TODO: face where shooting
-	if (ps2_x > LEFT_THRESHOLD) {
-		hero->lr = LEFT_d;
-		if (edge_lr != LEFT_d) hero->x_loc--;
-	}
-	else if (ps2_x < RIGHT_THRESHOLD) {
-		hero->lr = RIGHT_d;
-		if (edge_lr != RIGHT_d) hero->x_loc++;
-	}
-	else hero->lr = IDLE_lr;
-	if (ps2_y > UP_THRESHOLD) {
-		 hero->ud = UP_d;
-		 if (edge_ud != UP_d) hero->y_loc--;
-	}
-	else if (ps2_y < DOWN_THRESHOLD) {
-		hero->ud = DOWN_d;
-		if (edge_ud != DOWN_d) hero->y_loc++;
-	}
-	else hero->ud = DOWN_d;	//Want to default to facing down.
-
+	if (!hero->health) return true;
 
 	//Update collisions
 	if (!hero->count) { 
@@ -89,14 +72,32 @@ bool update_hero(actor_t *hero) {
 				hero->count = HERO_INVINCIBILITY;
 				hero->health--;
 			}
+			enemy = enemy->next;
 		}
 	}
 	//Invincibility count is active, do not check collisions
 	else hero->count--;
 
-	//Report aliveness (false for dead)
-	if (hero->health) return false;
-	else return true;
+	//Move on speed interval
+	if (hero->move_count = PLAYER_SPEED) {
+		if (ps2_x > LEFT_THRESHOLD) {
+			if (edge_lr != LEFT_d) hero->x_loc--;
+		}
+		else if (ps2_x < RIGHT_THRESHOLD) {
+			if (edge_lr != RIGHT_d) hero->x_loc++;
+		}
+		if (ps2_y > UP_THRESHOLD) {\
+			 if (edge_ud != UP_d) hero->y_loc--;
+		}
+		else if (ps2_y < DOWN_THRESHOLD) {
+			if (edge_ud != DOWN_d) hero->y_loc++;
+		}
+		hero->move_count = 0;
+	}
+	else hero->move_count++;
+
+	//Report aliveness (false for alive)
+	return false;
 }
 
 //Missile dies on contact with enemy, travels in straight line, and hurts enemies.
@@ -118,10 +119,14 @@ bool update_tear(actor_t *tear) {
 	}
 	
 	//Update position
-	if (tear->lr == LEFT_d) tear->x_loc--;
-	else tear->x_loc++;
-	if (tear->ud == UP_d) tear->y_loc--;
-	else tear->y_loc++;
+	if(tear->move_count == TEAR_SPEED) {
+		if (tear->lr == LEFT_d) tear->x_loc--;
+		else tear->x_loc++;
+		if (tear->ud == UP_d) tear->y_loc--;
+		else tear->y_loc++;
+		tear->move_count = 0;
+	}
+	else tear->move_count++;
 
 	//If we get here tear is still alive
 	return false;
@@ -134,15 +139,21 @@ bool update_zombie(actor_t *zombie) {
 
 	//If dead, return dead.
 	if (zombie->health <= 0) return true;
+	
+	//Move on speed interval
+	if (zombie->move_count == ZOMBIE_SPEED) {
+		if (direction_preference > PREFERENCE_CUTOFF) {
+			if (zombie->x_loc > hero->x_loc) zombie->x_loc--;
+			else if (zombie->x_loc < hero->x_loc) zombie->x_loc++;
+		}
+		else {
+			if (zombie->y_loc > hero->y_loc) zombie->y_loc--;
+			else if (zombie->y_loc < hero->y_loc) zombie->y_loc++;
+		}
+		zombie->move_count = 0;
+	}
+	else zombie->move_count++;
 
-	if (direction_preference > PREFERENCE_CUTOFF) {
-		if (zombie->x_loc > hero->x_loc) zombie->x_loc--;
-		else if (zombie->x_loc < hero->x_loc) zombie->x_loc++;
-	}
-	else {
-		if (zombie->y_loc > hero->y_loc) zombie->y_loc--;
-		else if (zombie->y_loc < hero->y_loc) zombie->y_loc++;
-	}
 	return false;
 }
 
@@ -157,31 +168,25 @@ bool update_bat(actor_t *bat) {
 
 
 	//Detect if at edge of screen, switch movement direction
-	if (bat->lr == LEFT_d) {
-		bat->x_loc--;
-		if (edge_lr == LEFT_d)
-			bat->lr = RIGHT_d;
-	}
-	else if (bat->lr == RIGHT_d) {
-		bat->x_loc++;
-		if (edge_lr == RIGHT_d)
-			bat->lr = LEFT_d;
-	}
+	if (edge_lr == LEFT_d) bat->lr = RIGHT_d;
+	if (edge_lr == RIGHT_d) bat->lr = LEFT_d;
+	if (edge_ud == UP_d) bat->ud = DOWN_d;
+	if (edge_ud == RIGHT_d) bat->ud = UP_d;
 
-	if (bat->ud == UP_d) {
-		bat->y_loc--;
-		if (edge_ud == UP_d)
-			bat->ud = DOWN_d;
+	//Move at speed inteval
+	if (bat->move_count == BAT_SPEED)
+		if (bat->lr == LEFT_d) bat->x_loc--;
+		else if (bat->lr == RIGHT_d) bat->x_loc++;
+		if (bat->ud == UP_d) bat->y_loc--;
+		else if (bat->ud == DOWN_d) bat->y_loc++;
+		bat->move_count = 0;
 	}
-	else if (bat->ud == DOWN_d) {
-		bat->y_loc++;
-		if (edge_ud == RIGHT_d)
-			bat->ud = UP_d;
-	}
+	else bat->move_count++;
+
 	return false;
 }
 
-//Blobs only move every so often. They have a counter that tells them when to move and when not to.
+//Slimes only move every so often. They have a counter that tells them when to move and when not to.
 bool update_slime(actor_t *slime) {
 	lr_t edge_lr = at_edge_lr(slime);
 	ud_t edge_ud = at_edge_ud(slime);
@@ -213,10 +218,15 @@ bool update_slime(actor_t *slime) {
 	else slime->count++;
 
 	//Actually move.
-	if (slime->lr == LEFT_d && edge_lr != LEFT_d) slime->x_loc--;
-	else if (slime->lr == RIGHT_d && edge_lr != RIGHT_d) slime->x_loc++;
-	else if (slime->ud == UP_d && edge_lr != UP_d) slime->y_loc--;
-	else if (slime->ud == DOWN_d && edge_lr != DOWN_d) slime->y_loc++;
+	if (slime->move_count == SLIME_SPEED) {
+		if (slime->lr == LEFT_d && edge_lr != LEFT_d) slime->x_loc--;
+		else if (slime->lr == RIGHT_d && edge_lr != RIGHT_d) slime->x_loc++;
+		else if (slime->ud == UP_d && edge_lr != UP_d) slime->y_loc--;
+		else if (slime->ud == DOWN_d && edge_lr != DOWN_d) slime->y_loc++;
+		slime->move_count = 0;
+	}
+	else slime->move_count++;
+
 	return true;
 }
 
@@ -227,10 +237,16 @@ bool update_mimic(actor_t *mimic) {
 	
 	if (mimic->health <= 0) return true;
 	
-	if (ps2_x > LEFT_THRESHOLD && edge_lr != LEFT_d) mimic->x_loc--;
-	else if (ps2_x < RIGHT_THRESHOLD && edge_lr != RIGHT_d) mimic->x_loc++;
-	if (ps2_y > UP_THRESHOLD && edge_ud != UP_d) mimic->y_loc--;
-	else if (ps2_y < DOWN_THRESHOLD && edge_ud != DOWN_d) mimic->y_loc++;
+	//move on speed interval
+	if (mimic->move_count >= MIMIC_SPEED) {
+		if (ps2_x > LEFT_THRESHOLD && edge_lr != LEFT_d) mimic->x_loc--;
+		else if (ps2_x < RIGHT_THRESHOLD && edge_lr != RIGHT_d) mimic->x_loc++;
+		if (ps2_y > UP_THRESHOLD && edge_ud != UP_d) mimic->y_loc--;
+		else if (ps2_y < DOWN_THRESHOLD && edge_ud != DOWN_d) mimic->y_loc++;
+		mimic->move_count = 0;
+	}
+	else mimic->move_count++;
+	
 	return false;
 }
 
@@ -238,47 +254,42 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 	actor_t *actor = malloc(sizeof(actor));
 	if (type == TEAR) {
 		actor->bitmap = (uint8_t*)tearBitmap;
-//	actor->clear_bitmap = (uint8_t*)tearErase;
+		//actor->clear_bitmap = (uint8_t*)tearErase;
 		actor->height = TEAR_HEIGHT;
 		actor->width = TEAR_WIDTH;
-		actor->speed = MAX_SPEED - TEAR_SPEED + 1;
-		actor->move_count = 0;
+		//actor->speed = MAX_SPEED - TEAR_SPEED + 1;
 	}
 	else if (type == ZOMBIE) {
 		actor->bitmap = (uint8_t*)zombieBitmap;
-//	actor->clear_bitmap = (uint8_t*)zombieErase;
+		//actor->clear_bitmap = (uint8_t*)zombieErase;
 		actor->height = ZOMBIE_HEIGHT;
 		actor->width = ZOMBIE_WIDTH;
 		actor->health = ZOMBIE_HEALTH;
-		actor->speed = MAX_SPEED - ZOMBIE_SPEED + 1;
-		actor->move_count = 0;		
+		//actor->speed = MAX_SPEED - ZOMBIE_SPEED + 1;	
 	}
 	else if (type == BAT) {
 		actor->bitmap = (uint8_t*)batBitmap;
-//	actor->clear_bitmap = (uint8_t*)batErase;
+		//actor->clear_bitmap = (uint8_t*)batErase;
 		actor->height = BAT_HEIGHT;
 		actor->width = BAT_WIDTH;
 		actor->health = BAT_HEALTH;
-		actor->speed = MAX_SPEED - BAT_SPEED + 1;
-		actor->move_count = 0;		
+		//actor->speed = MAX_SPEED - BAT_SPEED + 1;	
 	}
 	else if (type == SLIME) {
 		actor->bitmap = (uint8_t*)slimeBitmap;
-//	actor->clear_bitmap = (uint8_t*)slimeErase;
+		//actor->clear_bitmap = (uint8_t*)slimeErase;
 		actor->height = SLIME_HEIGHT;
 		actor->width = SLIME_WIDTH;
 		actor->health = SLIME_HEALTH;
-		actor->speed = MAX_SPEED - SLIME_SPEED + 1;
-		actor->move_count = 0;		
+		//actor->speed = MAX_SPEED - SLIME_SPEED + 1;		
 	}
 	else if (type == MIMIC) {
 		actor->bitmap = (uint8_t*)mimicBitmap;
-//	actor->clear_bitmap = (uint8_t*)mimicErase;
+		//actor->clear_bitmap = (uint8_t*)mimicErase;
 		actor->height = MIMIC_HEIGHT;
 		actor->width = MIMIC_WIDTH;
 		actor->health = MIMIC_HEALTH;
-		actor->speed = MAX_SPEED - MIMIC_SPEED + 1;
-		actor->move_count = 0;
+		//actor->speed = MAX_SPEED - MIMIC_SPEED + 1;
 	}
 
 	actor->lr = lr;
@@ -287,6 +298,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 	actor->y_loc = y;
 	actor->type = type;
 	actor->count = 0;
+	actor->move_count = 0;
 
 	//Link into list after head
 	actor->next = actors->next;
@@ -332,7 +344,8 @@ bool detect_collision(actor_t *a, actor_t *b) {
 	//If a's left is right of b's right
 	//If a's top is below b's bottom
 	//If a's bottom is above b's top
-	if(a_right < b_left || a_left > b_right || a_bottom < b_top || a_top > b_bottom) return false;
+	if(a_right < b_left || a_left > b_right || a_bottom < b_top || a_top > b_bottom) 
+		return false;
 	else return true;
 }
 
@@ -379,7 +392,6 @@ void hero_init(void){
 	hero->lr = IDLE_lr;
 	hero->ud = IDLE_ud;
 	hero->move_count = 0;
-	hero->speed = PLAYER_SPEED;
 	hero->type = HERO;
 	hero->x_loc = COLS / 2;
 	hero->y_loc = ROWS /2;

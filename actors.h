@@ -20,20 +20,14 @@
 #define SLIME_HEALTH 4
 #define MIMIC_HEALTH 5
 
-//Speeds (higher = faster)
-#define PLAYER_SPEED 	3
-#define TEAR_SPEED 		1
-#define ZOMBIE_SPEED 	2
-#define BAT_SPEED 		2
-#define SLIME_SPEED 	4
-#define MIMIC_SPEED 	5
-#define MAX_SPEED			10
-
-
-#define TOP_BORDER 		HERO_HEIGHT / 2
-#define BOTTOM_BORDER 	ROWS - TOP_BORDER
-#define LEFT_BORDER 	HERO_WIDTH / 2
-#define RIGHT_BORDER 	COLS - LEFT_BORDER - 1
+//Speeds (lower = faster)	Change this|
+#define MAX_SPEED		10
+#define PLAYER_SPEED 	MAX_SPEED - 3 + 1
+#define TEAR_SPEED 		MAX_SPEED - 1 + 1
+#define ZOMBIE_SPEED 	MAX_SPEED - 2 + 1
+#define BAT_SPEED 		MAX_SPEED - 3 + 1
+#define SLIME_SPEED 	MAX_SPEED - 4 + 1
+#define MIMIC_SPEED 	MAX_SPEED - 5 + 1
 
 #define MAX_ACTORS	50
 #define HERO_INVINCIBILITY	10
@@ -61,7 +55,6 @@ typedef struct actor_t {
 	uint8_t count;
 	uint8_t height;
 	uint8_t width;
-	uint8_t speed;
 	uint8_t move_count;
 	struct actor_t *next;
 } actor_t;

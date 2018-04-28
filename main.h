@@ -38,12 +38,25 @@
 #define TICKS 62500
 #define LED_CYCLE 20
 
-
+#define WAVE_1 3
+#define WAVE_2 6
+#define WAVE_3 10
+#define WAVE_4 15
+#define WAVE_5 22
+#define WAVE_6 30
+#define WAVE_7 40 
+#define WAVE_8 55
+#define WAVE_9 75
+#define WAVE_10	100
 
 #define DOWN_THRESHOLD	0x400
 #define UP_THRESHOLD	0xC00
 #define RIGHT_THRESHOLD	0x400
 #define LEFT_THRESHOLD	0xC00
+
+#define SPAWN_DELAY 10
+#define WAVE_DELAY 50
+
 
 
 extern void initialize_serial_debug(void);
