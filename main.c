@@ -60,7 +60,7 @@ uint8_t buttons_current;
 bool buttons_pressed[4];
 bool tear_fired;
 
-const uint8_t num_enemies[] = { WAVE1, WAVE2, WAVE3, WAVE4, WAVE5, WAVE5, WAVE6, WAVE7, WAVE8, WAVE9, WAVE10 };
+const uint8_t num_enemies[] = {WAVE1, WAVE2, WAVE3, WAVE4, WAVE5, WAVE5, WAVE6, WAVE7, WAVE8, WAVE9, WAVE10};
 
 //*****************************************************************************
 //*****************************************************************************
@@ -94,7 +94,7 @@ void initialize_hardware(void) {
 	
 	gpio_config_falling_edge_irq(GPIOF_BASE, SW2_IO_EXPANDER_INT);
 	NVIC_SetPriority(GPIOF_IRQn, 0);
-  NVIC_EnableIRQ(GPIOF_IRQn);
+ 	NVIC_EnableIRQ(GPIOF_IRQn);
 	
 }
 
@@ -132,10 +132,7 @@ void GPIOF_Handler(void)
 
 //*****************************************************************************
 //*****************************************************************************
-int main(void)
-{
-    uint8_t killed;
-
+int main(void) {
     //Initialize hero location, timer, and adc.
     hero_init();
     hero = actors;
@@ -168,17 +165,14 @@ int main(void)
         if (TimerB_Done) {
             update_green_led();
             get_ps2_value(ADC0_BASE);
-            killed = update_actors();
-            update_game(killed);
+            update_game(update_actors());
             //Shoot tears
             if (button_count) {
                 mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
                 debounce_buttons();
                 tear_fired = fire_on_press();
-                if (tear_fired)
-                    button_count = TEAR_RATE;
-                else
-                    button_count--;
+                if (tear_fired) button_count = TEAR_RATE;
+                else button_count--;
             }
             TimerB_Done = false;
         }
@@ -195,15 +189,15 @@ int main(void)
 }
 
 //FSM that toggles the red led every 5Hz
-void update_red_led(void)
-{
+void update_red_led(void) {
     static uint8_t countA = 0;
     static bool stateA = false;
     if (!countA) {
         if (stateA) {
             lp_io_clear_pin(RED_BIT);
             stateA = false;
-        } else {
+        } 
+		else {
             lp_io_set_pin(RED_BIT);
             stateA = true;
         }
@@ -212,15 +206,15 @@ void update_red_led(void)
 }
 
 //FSM that toggles the green led every 2.5Hz.
-void update_green_led(void)
-{
+void update_green_led(void) {
     static bool stateB = false;
     static uint8_t countB = 0;
     if (!countB) {
         if (stateB) {
             lp_io_clear_pin(GREEN_BIT);
             stateB = false;
-        } else {
+        } 
+		else {
             lp_io_set_pin(GREEN_BIT);
             stateB = true;
         }
@@ -230,8 +224,7 @@ void update_green_led(void)
 
 //UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3
 //Tears will keep firing as long as buttons are held.
-void debounce_buttons(void)
-{
+void debounce_buttons(void) {
     int i;
     static uint8_t button_count[4];
 
@@ -244,8 +237,8 @@ void debounce_buttons(void)
             }
             //Increment circular counter
             button_count[i] = (button_count[i] + 1) % TEAR_RATE;
-        } else
-            button_count[i] = 0; //Else reset count
+        } 
+		else button_count[i] = 0; //Else reset count
     }
 }
 
@@ -278,8 +271,7 @@ bool fire_on_press(void)
     return false;
 }
 
-bool update_game(uint8_t killed)
-{
+void update_game(uint8_t killed) {
     static uint8_t wave = 1;
     static uint8_t spawned = 0;
     static uint8_t dead = 0;
@@ -290,14 +282,15 @@ bool update_game(uint8_t killed)
 
     if (dead < num_enemies[wave]) { //wave in progress
         if (spawned < num_enemies[wave - 1]) {
-            if (spawn_wait >= SPAWN_DELAY && spawned - dead < MAX_ENEMIES) {
+            if (spawn_wait >= SPAWN_DELAY && spawned - dead < MAX_ACTORS) {
                 spawn();
                 spawn_wait = 0;
                 spawned++;
             } 
-			elsen spawn_wait++;
+			else spawn_wait++;
         }
-    } else { //wave over
+    } 
+	else { //wave over
         if (wave_wait < WAVE_DELAY) wave_wait++;
         else {
             wave_wait = 0;
@@ -308,8 +301,7 @@ bool update_game(uint8_t killed)
     }
 }
 
-void spawn()
-{
+void spawn() {
     //top = 0, bottom = 1, left = 2, right = 3
     uint16_t x, y;
     uint8_t side, spot, type;
