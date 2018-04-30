@@ -17,11 +17,11 @@
 #define ZOMBIE_WIDTH 24
 #define ZOMBIE_HEIGHT 40
 //Bitmap size for slime
-#define SLIME_WIDTH 12
-#define SLIME_HEIGHT 12
+#define SLIME_WIDTH 24
+#define SLIME_HEIGHT 24
 //Bitmap size for mimic
-#define MIMIC_WIDTH 40
-#define MIMIC_HEIGHT 40
+#define MIMIC_WIDTH 21
+#define MIMIC_HEIGHT 21
 
 
 extern const uint8_t heroBitmap[];
