@@ -45,7 +45,6 @@ typedef enum {IDLE_ud, UP_d, DOWN_d} ud_t;
 
 typedef struct actor_t {
 	uint8_t *bitmap;
-	//uint8_t *clear_bitmap;
 	lr_t lr;
 	ud_t ud;
 	uint16_t x_loc;

@@ -190,7 +190,7 @@ bool update_slime(actor_t *slime) {
 	lr_t edge_lr = at_edge_lr(slime);
 	ud_t edge_ud = at_edge_ud(slime);
 
-	if (slime->health <= 0) return false;
+	if (slime->health <= 0) return true;
 
 	//Count reached, switch between moving and idle.
 	if (slime->count == SLIME_COUNT) {
@@ -226,7 +226,7 @@ bool update_slime(actor_t *slime) {
 	}
 	else slime->move_count++;
 
-	return true;
+	return false;
 }
 
 //Mimics, surprisingly, mimic the movement of the player, but slower (same speed, faster? variants?)
@@ -305,8 +305,8 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 	actor->move_count = 0;
 
 	//Link into list after head
-	actor->next = actors->next;
-	actors->next = actor;
+	actor->next = actors->next;	//new_actor->next = hero->next
+	actors->next = actor;	//hero->next = new_actor
 
 	return actor;
 }

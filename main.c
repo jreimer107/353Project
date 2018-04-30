@@ -1,25 +1,3 @@
-// Copyright (c) 2015-16, Joe Krachey
-// All rights reserved.
-//
-// Redistribution and use in source or binary form, with or without modification,
-// are permitted provided that the following conditions are met:
-//
-// 1. Redistributions in source form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in
-//    the documentation and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-// EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #include "main.h"
 #include "actors.h"
 #include "eeprom.h"
@@ -37,12 +15,8 @@ char individual_2[] = "Luke Richmond";
 // Global declared next //
 /////////////////////////
 
-//struct missle * m_head = NULL;
-//struct missle * m_tail = NULL;
 extern actor_t* actors;
 actor_t* hero;
-//enemy_t *enemy_head = NULL;
-//actor_t *actor = NULL;
 
 uint16_t ps2_x, ps2_y;
 
@@ -54,13 +28,12 @@ volatile uint8_t button_count = 0;
 TIMER0_Type* gp_timer;
 GPIOA_Type* portf;
 ADC0_Type* myadc;
-//I2C0_Type i2c_base = (I2C0_Type*)I2C1_BASE;
 
 uint8_t buttons_current;
 bool buttons_pressed[4];
 bool tear_fired;
 
-const uint8_t num_enemies[] = { WAVE1, WAVE2, WAVE3, WAVE4, WAVE5, WAVE5, WAVE6, WAVE7, WAVE8, WAVE9, WAVE10 };
+const uint8_t num_enemies[] = {WAVE1, WAVE2, WAVE3, WAVE4, WAVE5, WAVE5, WAVE6, WAVE7, WAVE8, WAVE9, WAVE10};
 
 //*****************************************************************************
 //*****************************************************************************
@@ -100,6 +73,9 @@ void initialize_hardware(void) {
 	//NVIC_SetPriority(GPIOF_IRQn, 0);
   //NVIC_EnableIRQ(GPIOF_IRQn);
 	//portf->ICR |= GPIO_ICR_GPIO_M;
+	gpio_config_falling_edge_irq(GPIOF_BASE, SW2_IO_EXPANDER_INT);
+	NVIC_SetPriority(GPIOF_IRQn, 0);
+ 	NVIC_EnableIRQ(GPIOF_IRQn);
 	
 }
 
@@ -137,17 +113,13 @@ void GPIOF_Handler(void)
 
 //*****************************************************************************
 //*****************************************************************************
-int main(void)
-{
-    uint8_t killed;
-
+int main(void) {
     //Initialize hero location, timer, and adc.
     hero_init();
     hero = actors;
     gp_timer = (TIMER0_Type*)TIMER0_BASE;
     myadc = (ADC0_Type*)ADC0_BASE;
     portf = (GPIOA_Type*)GPIOF_BASE;
-    //i2c_base = (I2C0_Type*)I2C1_BASE;
     initialize_hardware();
     gp_timer_start_16(TIMER0_BASE, 7, 15, TICKS, TICKS);
 
@@ -166,24 +138,20 @@ int main(void)
     while (1) {
         if (TimerA_Done) {
             update_red_led();
-            //update_missles();
             TimerA_Done = false;
         }
 
         if (TimerB_Done) {
             update_green_led();
             get_ps2_value(ADC0_BASE);
-            killed = update_actors();
-            update_game(killed);
+            update_game(update_actors());
             //Shoot tears
             if (button_count) {
                 mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
                 debounce_buttons();
                 tear_fired = fire_on_press();
-                if (tear_fired)
-                    button_count = TEAR_RATE;
-                else
-                    button_count--;
+                if (tear_fired) button_count = TEAR_RATE;
+                else button_count--;
             }
             TimerB_Done = false;
         }
@@ -200,15 +168,15 @@ int main(void)
 }
 
 //FSM that toggles the red led every 5Hz
-void update_red_led(void)
-{
+void update_red_led(void) {
     static uint8_t countA = 0;
     static bool stateA = false;
     if (!countA) {
         if (stateA) {
             lp_io_clear_pin(RED_BIT);
             stateA = false;
-        } else {
+        } 
+		else {
             lp_io_set_pin(RED_BIT);
             stateA = true;
         }
@@ -217,15 +185,15 @@ void update_red_led(void)
 }
 
 //FSM that toggles the green led every 2.5Hz.
-void update_green_led(void)
-{
+void update_green_led(void) {
     static bool stateB = false;
     static uint8_t countB = 0;
     if (!countB) {
         if (stateB) {
             lp_io_clear_pin(GREEN_BIT);
             stateB = false;
-        } else {
+        } 
+		else {
             lp_io_set_pin(GREEN_BIT);
             stateB = true;
         }
@@ -235,8 +203,7 @@ void update_green_led(void)
 
 //UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3
 //Tears will keep firing as long as buttons are held.
-void debounce_buttons(void)
-{
+void debounce_buttons(void) {
     int i;
     static uint8_t button_count[4];
 
@@ -249,8 +216,8 @@ void debounce_buttons(void)
             }
             //Increment circular counter
             button_count[i] = (button_count[i] + 1) % TEAR_RATE;
-        } else
-            button_count[i] = 0; //Else reset count
+        } 
+		else button_count[i] = 0; //Else reset count
     }
 }
 
@@ -283,8 +250,12 @@ bool fire_on_press(void)
     return false;
 }
 
+<<<<<<< HEAD
 void update_game(uint8_t killed)
 {
+=======
+void update_game(uint8_t killed) {
+>>>>>>> da78cbb6d402f94650e5670994dc756e3a201025
     static uint8_t wave = 1;
     static uint8_t spawned = 0;
     static uint8_t dead = 0;
@@ -302,7 +273,8 @@ void update_game(uint8_t killed)
             } 
 			else spawn_wait++;
         }
-    } else { //wave over
+    } 
+	else { //wave over
         if (wave_wait < WAVE_DELAY) wave_wait++;
         else {
             wave_wait = 0;
@@ -313,8 +285,7 @@ void update_game(uint8_t killed)
     }
 }
 
-void spawn()
-{
+void spawn() {
     //top = 0, bottom = 1, left = 2, right = 3
     uint16_t x, y;
     uint8_t side, spot, type;
