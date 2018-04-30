@@ -75,7 +75,7 @@ void update_hero_dir(void);
 void debounce_buttons(void);
 bool fire_on_press(void);
 void draw(void);
-void spawn();
+void spawn(void);
 void update_game(uint8_t killed);
 
 

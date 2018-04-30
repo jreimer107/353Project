@@ -24,13 +24,13 @@ uint16_t ps2_x, ps2_y;
 volatile bool TimerA_Done = false;
 volatile bool TimerB_Done = false;
 volatile bool ADC_Done = false;
-volatile uint8_t button_count = 0;
+volatile uint8_t poll_button = 0;
 TIMER0_Type* gp_timer;
 GPIOA_Type* portf;
 ADC0_Type* myadc;
 
-uint8_t buttons_current;
-bool buttons_pressed[4];
+uint8_t buttons_current = 0;
+bool buttons_pressed[4] = {false, false, false, false};
 bool tear_fired;
 
 const uint8_t num_enemies[] = {WAVE1, WAVE2, WAVE3, WAVE4, WAVE5, WAVE5, WAVE6, WAVE7, WAVE8, WAVE9, WAVE10};
@@ -61,21 +61,18 @@ void initialize_hardware(void) {
 	
 	
 	
-	//Initialize port expander
-	//if(mcp_init() == false){
-	//	while(1){}
-	//}
-	//gpio_enable_port(GPIOF_BASE);
-	//gpio_config_digital_enable(GPIOF_BASE, PF0);
-	//gpio_config_enable_input(GPIOF_BASE, PF0);
-	//gpio_config_enable_pullup(GPIOF_BASE, PF0);
-	//gpio_config_falling_edge_irq(GPIOF_BASE, PF0);
-	//NVIC_SetPriority(GPIOF_IRQn, 0);
-  //NVIC_EnableIRQ(GPIOF_IRQn);
-	//portf->ICR |= GPIO_ICR_GPIO_M;
-	gpio_config_falling_edge_irq(GPIOF_BASE, SW2_IO_EXPANDER_INT);
+
+	gpio_enable_port(GPIOF_BASE);
+	gpio_config_digital_enable(GPIOF_BASE, PF0);
+	gpio_config_enable_input(GPIOF_BASE, PF0);
+	gpio_config_falling_edge_irq(GPIOF_BASE, PF0);
 	NVIC_SetPriority(GPIOF_IRQn, 0);
- 	NVIC_EnableIRQ(GPIOF_IRQn);
+  NVIC_EnableIRQ(GPIOF_IRQn);
+	portf->ICR |= GPIO_ICR_GPIO_M;
+	//Initialize port expander
+	if(mcp_init() == false){
+		while(1){}
+	}
 	
 }
 
@@ -102,9 +99,8 @@ void ADC0SS2_Handler(void)
     myadc->ISC = ADC_ISC_IN2; // Ack the conversion
 }
 
-void GPIOF_Handler(void)
-{
-    button_count = TEAR_RATE;
+void GPIOF_Handler(void) {
+    poll_button = TEAR_RATE;
     //clear icr of gpiof
     portf->ICR |= GPIO_ICR_GPIO_M;
     //read Gpiob of port expander
@@ -146,12 +142,12 @@ int main(void) {
             get_ps2_value(ADC0_BASE);
             update_game(update_actors());
             //Shoot tears
-            if (button_count) {
+            if (poll_button) {
                 mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
                 debounce_buttons();
                 tear_fired = fire_on_press();
-                if (tear_fired) button_count = TEAR_RATE;
-                else button_count--;
+                if (tear_fired) poll_button = TEAR_RATE;
+                else poll_button--;
             }
             TimerB_Done = false;
         }
@@ -209,7 +205,7 @@ void debounce_buttons(void) {
 
     //Get update button counters based on current state of buttons
     for (i = 0; i < 4; i++) {
-        if (buttons_current & 1 << i) { //If button is currently pressed
+        if (buttons_current & (1 << i)) { //If button is currently pressed
             //Check if have had enough iterations to fire tear
             if (button_count[i] == TEAR_RATE - 1) { //Indicate that a button has been pressed sufficiently long
                 buttons_pressed[i] = true;
@@ -217,12 +213,11 @@ void debounce_buttons(void) {
             //Increment circular counter
             button_count[i] = (button_count[i] + 1) % TEAR_RATE;
         } 
-		else button_count[i] = 0; //Else reset count
+				else button_count[i] = 0; //Else reset count
     }
 }
 
-bool fire_on_press(void)
-{
+bool fire_on_press(void) {
     //Update hero direction
     if (buttons_pressed[0]) {
         hero->ud = UP_d;
@@ -243,19 +238,14 @@ bool fire_on_press(void)
 
     //If the direction isn't null-null we need to spawn a tear going in that direction
     if (hero->lr != IDLE_lr && hero->ud != IDLE_ud) {
-        //create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
+        create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
         return true;
     }
 
     return false;
 }
 
-<<<<<<< HEAD
-void update_game(uint8_t killed)
-{
-=======
 void update_game(uint8_t killed) {
->>>>>>> da78cbb6d402f94650e5670994dc756e3a201025
     static uint8_t wave = 1;
     static uint8_t spawned = 0;
     static uint8_t dead = 0;

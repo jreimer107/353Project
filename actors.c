@@ -57,7 +57,6 @@ uint8_t update_actors() {
 //Hero has an invincibility counter that prevents it from being damaged continuously.
 //It also fires tears.
 bool update_hero(actor_t *hero) {
-	static uint8_t button_count = 0;
 	lr_t edge_lr = at_edge_lr(hero);
 	ud_t edge_ud = at_edge_ud(hero);
 
@@ -250,50 +249,40 @@ bool update_mimic(actor_t *mimic) {
 }
 
 actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
-	actor_t *actor = malloc(sizeof(actor));
+	actor_t *actor = malloc(sizeof(actor_t));
 	if (type == TEAR) {
 		actor->bitmap = (uint8_t*)tearBitmap;
-		//actor->clear_bitmap = (uint8_t*)tearErase;
 		actor->height = TEAR_HEIGHT;
 		actor->width = TEAR_WIDTH;
 		actor->next = 0x0;
-		//actor->speed = MAX_SPEED - TEAR_SPEED + 1;
 	}
 	else if (type == ZOMBIE) {
 		actor->bitmap = (uint8_t*)zombieBitmap;
-		//actor->clear_bitmap = (uint8_t*)zombieErase;
 		actor->height = ZOMBIE_HEIGHT;
 		actor->width = ZOMBIE_WIDTH;
 		actor->health = ZOMBIE_HEALTH;
 		actor->next = 0x0;
-		//actor->speed = MAX_SPEED - ZOMBIE_SPEED + 1;	
 	}
 	else if (type == BAT) {
 		actor->bitmap = (uint8_t*)batBitmap;
-		//actor->clear_bitmap = (uint8_t*)batErase;
 		actor->height = BAT_HEIGHT;
 		actor->width = BAT_WIDTH;
 		actor->health = BAT_HEALTH;
-		actor->next = 0x0;
-		//actor->speed = MAX_SPEED - BAT_SPEED + 1;	
+		actor->next = 0x0;	
 	}
 	else if (type == SLIME) {
 		actor->bitmap = (uint8_t*)slimeBitmap;
-		//actor->clear_bitmap = (uint8_t*)slimeErase;
 		actor->height = SLIME_HEIGHT;
 		actor->width = SLIME_WIDTH;
 		actor->health = SLIME_HEALTH;
-		actor->next = 0x0;
-		//actor->speed = MAX_SPEED - SLIME_SPEED + 1;		
+		actor->next = 0x0;	
 	}
 	else if (type == MIMIC) {
 		actor->bitmap = (uint8_t*)mimicBitmap;
-		//actor->clear_bitmap = (uint8_t*)mimicErase;
 		actor->height = MIMIC_HEIGHT;
 		actor->width = MIMIC_WIDTH;
 		actor->health = MIMIC_HEALTH;
 		actor->next = 0x0;
-		//actor->speed = MAX_SPEED - MIMIC_SPEED + 1;
 	}
 
 	actor->lr = lr;
@@ -369,7 +358,6 @@ void destroy(actor_t *actor) {
 //Draws all actors.
 void draw_actors(void) {
 	actor_t *actor = actors;
-	uint8_t i = 0;
 	while(actor) {
 		lcd_draw_image(
 			actor->x_loc,		 // X Pos
