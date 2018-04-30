@@ -239,7 +239,7 @@ void debounce_buttons(void) {
             //Increment circular counter
             button_count[i] = (button_count[i] + 1) % TEAR_RATE;
         } 
-				else button_count[i] = 1; //Else reset count
+				else button_count[i] = 0; //Else reset count
     }
 }
 
