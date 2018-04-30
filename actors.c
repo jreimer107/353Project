@@ -323,15 +323,15 @@ ud_t at_edge_ud(actor_t *actor) {
 bool detect_collision(actor_t *a, actor_t *b) {
 	uint16_t a_top, a_bottom, a_right, a_left;
 	uint16_t b_top, b_bottom, b_right, b_left;
-	a_top = a->y_loc - a->height;
-	a_bottom = a->y_loc + a->height;
-	a_left = a->x_loc - a->width;
-	a_right = a->x_loc + a->width;
+	a_top = a->y_loc - a->height/2;
+	a_bottom = a->y_loc + a->height/2;
+	a_left = a->x_loc - a->width/2;
+	a_right = a->x_loc + a->width/2;
 
-	b_top = b->y_loc - b->height;
-	b_bottom = b->y_loc + b->height;
-	b_left = b->x_loc - b->width;
-	b_right = b->x_loc + b->width;
+	b_top = b->y_loc - b->height/2;
+	b_bottom = b->y_loc + b->height/2;
+	b_left = b->x_loc - b->width/2;
+	b_right = b->x_loc + b->width/2;
 
 	//If a's right is left of b's left
 	//If a's left is right of b's right

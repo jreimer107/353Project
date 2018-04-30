@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\obj\ece353_base_project.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\obj\ece353_base_project.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Mon Apr 30 17:05:24 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Mon Apr 30 17:15:38 2018
 <BR><P>
 <H3>Maximum Stack Usage =        144 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -342,8 +342,8 @@ Global Symbols
 <P><STRONG><a name="[8f]"></a>spawn</STRONG> (Thumb, 186 bytes, Stack size 40 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = spawn &rArr; create_actor &rArr; malloc
 </UL>
-<BR>[Calls]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;create_actor
-<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rand
+<BR>[Calls]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rand
+<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;create_actor
 </UL>
 <BR>[Called By]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_game
 </UL>
@@ -377,7 +377,8 @@ Global Symbols
 <P><STRONG><a name="[76]"></a>main</STRONG> (Thumb, 454 bytes, Stack size 8 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = main &rArr; update_actors &rArr; destroy &rArr; lcd_draw_image &rArr; lcd_set_pos &rArr; lcd_write_data_u16
 </UL>
-<BR>[Calls]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_actors
+<BR>[Calls]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_actors
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;put_string
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mcp_byte_read
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_serial_debug
@@ -393,7 +394,6 @@ Global Symbols
 <LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;initialize_hardware
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EnableInterrupts
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DisableInterrupts
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
@@ -437,9 +437,9 @@ Global Symbols
 <P><STRONG><a name="[a5]"></a>update_slime</STRONG> (Thumb, 214 bytes, Stack size 24 bytes, actors.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = update_slime &rArr; at_edge_lr
 </UL>
-<BR>[Calls]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;at_edge_lr
+<BR>[Calls]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rand
+<LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;at_edge_lr
 <LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;at_edge_ud
-<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rand
 </UL>
 <BR>[Called By]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_actors
 </UL>
@@ -461,15 +461,15 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_actors
 </UL>
 
-<P><STRONG><a name="[a9]"></a>detect_collision</STRONG> (Thumb, 126 bytes, Stack size 32 bytes, actors.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = detect_collision
+<P><STRONG><a name="[a9]"></a>detect_collision</STRONG> (Thumb, 176 bytes, Stack size 36 bytes, actors.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = detect_collision
 </UL>
 <BR>[Called By]<UL><LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_hero
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_tear
 </UL>
 
 <P><STRONG><a name="[a8]"></a>update_tear</STRONG> (Thumb, 140 bytes, Stack size 12 bytes, actors.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = update_tear &rArr; detect_collision
+<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = update_tear &rArr; detect_collision
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;detect_collision
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;at_edge_lr
@@ -479,7 +479,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[aa]"></a>update_hero</STRONG> (Thumb, 202 bytes, Stack size 20 bytes, actors.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = update_hero &rArr; detect_collision
+<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = update_hero &rArr; detect_collision
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;detect_collision
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;at_edge_lr
@@ -491,14 +491,14 @@ Global Symbols
 <P><STRONG><a name="[9c]"></a>update_actors</STRONG> (Thumb, 154 bytes, Stack size 24 bytes, actors.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = update_actors &rArr; destroy &rArr; lcd_draw_image &rArr; lcd_set_pos &rArr; lcd_write_data_u16
 </UL>
-<BR>[Calls]<UL><LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_hero
+<BR>[Calls]<UL><LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;free
+<LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_hero
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_tear
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_zombie
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_bat
 <LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_slime
 <LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_mimic
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;destroy
-<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;free
 </UL>
 <BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -1837,20 +1837,20 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_tm4c123.o(.text)
 </UL>
 <P><STRONG><a name="[9a]"></a>put_string</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, validate_uart.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_test_status
+<BR><BR>[Called By]<UL><LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_test_status
 <LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;validate_print_ice_validation_info_end
 <LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;validate_print_ice_validation_info_start
+<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[e8]"></a>validate_print_ice_validation_info_start</STRONG> (Thumb, 68 bytes, Stack size 112 bytes, validate_uart.o(.text), UNUSED)
-<BR><BR>[Calls]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;put_string
-<LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<BR><BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;put_string
 </UL>
 
 <P><STRONG><a name="[ea]"></a>validate_print_ice_validation_info_end</STRONG> (Thumb, 68 bytes, Stack size 112 bytes, validate_uart.o(.text), UNUSED)
-<BR><BR>[Calls]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;put_string
-<LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<BR><BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;put_string
 </UL>
 
 <P><STRONG><a name="[ed]"></a>staff_uart_config_gpio</STRONG> (Thumb, 82 bytes, Stack size 0 bytes, validate_uart.o(.text))
@@ -1899,19 +1899,19 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[ef]"></a>print_test_status</STRONG> (Thumb, 52 bytes, Stack size 112 bytes, validate_uart.o(.text), UNUSED)
-<BR><BR>[Calls]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;put_string
-<LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<BR><BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;put_string
 </UL>
 
 <P><STRONG><a name="[f0]"></a>validate_uart</STRONG> (Thumb, 126 bytes, Stack size 24 bytes, validate_uart.o(.text), UNUSED)
-<BR><BR>[Calls]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_get_fbrd
-<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_get_ibrd
-<LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;validate_uart_rcgc
+<BR><BR>[Calls]<UL><LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;validate_uart_rcgc
 <LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;validate_uart_interrupts_enabled
 <LI><a href="#[f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;validate_uart_control
 <LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;validate_uart_interrupt_mask
 <LI><a href="#[f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;validate_uart_line_control
 <LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;validate_uart_baud_rate
+<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_get_fbrd
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_get_ibrd
 </UL>
 
 <P><STRONG><a name="[f8]"></a>validate_gpio_rcgc</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, validate_sysctl.o(.text), UNUSED)
