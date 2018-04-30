@@ -31,22 +31,38 @@ compiling images.c...
 images.h(34): warning:  #1-D: last line of file ends without a newline
   #endif
 images.c: 1 warning, 0 errors
-compiling actors.c...
-images.h(34): warning:  #1-D: last line of file ends without a newline
-  #endif
-actors.h(88): warning:  #1-D: last line of file ends without a newline
-  #endif
-actors.c(58): warning:  #177-D: variable "button_count"  was declared but never referenced
-  	static uint8_t button_count = 0;
-actors.c: 3 warnings, 0 errors
 compiling main.c...
+main.h(78): warning:  #1295-D: Deprecated declaration spawn - give arg types
+  void spawn();
 images.h(34): warning:  #1-D: last line of file ends without a newline
   #endif
-actors.h(88): warning:  #1-D: last line of file ends without a newline
+actors.h(62): warning:  #1295-D: Deprecated declaration update_actors - give arg types
+  uint8_t update_actors();
+actors.h(81): warning:  #1-D: last line of file ends without a newline
   #endif
 ..\peripherals\include\eeprom.h(9): warning:  #47-D: incompatible redefinition of macro "MCP24LC32AT_DEV_ID"  (declared at line 10 of "MCP23017.h")
   #define MCP24LC32AT_DEV_ID			0x50
-main.c: 3 warnings, 0 errors
+main.c(324): warning:  #188-D: enumerated type mixed with another type
+      lr = rand() % 3;
+main.c(325): warning:  #188-D: enumerated type mixed with another type
+      ud = rand() % 3;
+main.c(342): warning:  #1-D: last line of file ends without a newline
+  }
+main.c: 8 warnings, 0 errors
+compiling actors.c...
+main.h(78): warning:  #1295-D: Deprecated declaration spawn - give arg types
+  void spawn();
+images.h(34): warning:  #1-D: last line of file ends without a newline
+  #endif
+actors.h(62): warning:  #1295-D: Deprecated declaration update_actors - give arg types
+  uint8_t update_actors();
+actors.h(81): warning:  #1-D: last line of file ends without a newline
+  #endif
+actors.c(60): warning:  #177-D: variable "button_count"  was declared but never referenced
+  	static uint8_t button_count = 0;
+actors.c(372): warning:  #177-D: variable "i"  was declared but never referenced
+  	uint8_t i = 0;
+actors.c: 6 warnings, 0 errors
 compiling MCP23017.c...
 compiling adc.c...
 compiling gpio_port.c...
@@ -70,8 +86,8 @@ compiling eeprom.c...
 assembling startup_TM4C123.s...
 compiling system_TM4C123.c...
 linking...
-Program Size: Code=10812 RO-data=1432 RW-data=100 ZI-data=4100  
-".\obj\ece353_base_project.axf" - 0 Error(s), 11 Warning(s).
+Program Size: Code=11140 RO-data=1380 RW-data=104 ZI-data=4096  
+".\obj\ece353_base_project.axf" - 0 Error(s), 19 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -96,11 +112,11 @@ Package Vendor: Keil
 
    * Component: Keil::Device:Startup:1.0.1
       Source file:   Device\Source\system_TM4C123.c
-      Include file:  Device\Include\TM4C123\TM4C123.h
       Source file:   Device\Source\ARM\startup_TM4C123.s
+      Include file:  Device\Include\TM4C123\TM4C123.h
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:10
+Build Time Elapsed:  00:00:09
 </pre>
 </body>
 </html>

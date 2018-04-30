@@ -59,7 +59,7 @@ typedef struct actor_t {
 	struct actor_t *next;
 } actor_t;
 
-void update_actors(void);
+uint8_t update_actors();
 bool update_hero(actor_t*);
 bool update_tear(actor_t*);
 bool update_zombie(actor_t*);

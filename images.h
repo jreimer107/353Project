@@ -15,13 +15,13 @@
 #define TEAR_HEIGHT 10
 //Bitmap size for zombie
 #define ZOMBIE_WIDTH 24
-#define ZOMBIE_HEIGHT 46
+#define ZOMBIE_HEIGHT 40
 //Bitmap size for slime
 #define SLIME_WIDTH 12
 #define SLIME_HEIGHT 12
 //Bitmap size for mimic
-#define MIMIC_WIDTH 41
-#define MIMIC_HEIGHT 41
+#define MIMIC_WIDTH 40
+#define MIMIC_HEIGHT 40
 
 
 extern const uint8_t heroBitmap[];

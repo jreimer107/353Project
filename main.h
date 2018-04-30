@@ -38,16 +38,16 @@
 #define TICKS 62500
 #define LED_CYCLE 20
 
-#define WAVE_1 3
-#define WAVE_2 6
-#define WAVE_3 10
-#define WAVE_4 15
-#define WAVE_5 22
-#define WAVE_6 30
-#define WAVE_7 40 
-#define WAVE_8 55
-#define WAVE_9 75
-#define WAVE_10	100
+#define WAVE1 3
+#define WAVE2 6
+#define WAVE3 10
+#define WAVE4 15
+#define WAVE5 22
+#define WAVE6 30
+#define WAVE7 40 
+#define WAVE8 55
+#define WAVE9 75
+#define WAVE10	100
 
 #define DOWN_THRESHOLD	0x400
 #define UP_THRESHOLD	0xC00
@@ -75,6 +75,8 @@ void update_hero_dir(void);
 void debounce_buttons(void);
 bool fire_on_press(void);
 void draw(void);
+void spawn();
+void update_game(uint8_t killed);
 
 
 #endif

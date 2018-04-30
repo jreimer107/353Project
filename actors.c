@@ -3,7 +3,6 @@
 actor_t *actors; //Hero should be head node;
 extern uint16_t ps2_x, ps2_y;
 
-
 //Main update function. Calls helper functions based on actor type.
 //Helper functions must complete four tasks:
 //1. Update the position of the actor.
@@ -72,18 +71,14 @@ bool update_hero(actor_t *hero) {
 				hero->count = HERO_INVINCIBILITY;
 				hero->health--;
 			}
-<<<<<<< Updated upstream
 			enemy = enemy->next;
-=======
-			enemy = enemy -> next;
->>>>>>> Stashed changes
 		}
 	}
 	//Invincibility count is active, do not check collisions
 	else hero->count--;
 
 	//Move on speed interval
-	if (hero->move_count = PLAYER_SPEED) {
+	if (hero->move_count == PLAYER_SPEED) {
 		if (ps2_x > LEFT_THRESHOLD) {
 			if (edge_lr != LEFT_d) hero->x_loc--;
 		}
@@ -178,7 +173,7 @@ bool update_bat(actor_t *bat) {
 	if (edge_ud == RIGHT_d) bat->ud = UP_d;
 
 	//Move at speed inteval
-	if (bat->move_count == BAT_SPEED)
+	if (bat->move_count == BAT_SPEED){
 		if (bat->lr == LEFT_d) bat->x_loc--;
 		else if (bat->lr == RIGHT_d) bat->x_loc++;
 		if (bat->ud == UP_d) bat->y_loc--;
@@ -261,6 +256,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		//actor->clear_bitmap = (uint8_t*)tearErase;
 		actor->height = TEAR_HEIGHT;
 		actor->width = TEAR_WIDTH;
+		actor->next = 0x0;
 		//actor->speed = MAX_SPEED - TEAR_SPEED + 1;
 	}
 	else if (type == ZOMBIE) {
@@ -269,6 +265,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = ZOMBIE_HEIGHT;
 		actor->width = ZOMBIE_WIDTH;
 		actor->health = ZOMBIE_HEALTH;
+		actor->next = 0x0;
 		//actor->speed = MAX_SPEED - ZOMBIE_SPEED + 1;	
 	}
 	else if (type == BAT) {
@@ -277,6 +274,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = BAT_HEIGHT;
 		actor->width = BAT_WIDTH;
 		actor->health = BAT_HEALTH;
+		actor->next = 0x0;
 		//actor->speed = MAX_SPEED - BAT_SPEED + 1;	
 	}
 	else if (type == SLIME) {
@@ -285,6 +283,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = SLIME_HEIGHT;
 		actor->width = SLIME_WIDTH;
 		actor->health = SLIME_HEALTH;
+		actor->next = 0x0;
 		//actor->speed = MAX_SPEED - SLIME_SPEED + 1;		
 	}
 	else if (type == MIMIC) {
@@ -293,6 +292,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = MIMIC_HEIGHT;
 		actor->width = MIMIC_WIDTH;
 		actor->health = MIMIC_HEALTH;
+		actor->next = 0x0;
 		//actor->speed = MAX_SPEED - MIMIC_SPEED + 1;
 	}
 
@@ -369,6 +369,7 @@ void destroy(actor_t *actor) {
 //Draws all actors.
 void draw_actors(void) {
 	actor_t *actor = actors;
+	uint8_t i = 0;
 	while(actor) {
 		lcd_draw_image(
 			actor->x_loc,		 // X Pos

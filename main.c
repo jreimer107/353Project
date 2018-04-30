@@ -86,15 +86,20 @@ void initialize_hardware(void) {
 	//Initialize EEPROM
 	eeprom_init();
 	
+	
+	
 	//Initialize port expander
-	if(mcp_init() == false){
-		while(1){}
-	}
-	
-	
-	gpio_config_falling_edge_irq(GPIOF_BASE, SW2_IO_EXPANDER_INT);
-	NVIC_SetPriority(GPIOF_IRQn, 0);
-  NVIC_EnableIRQ(GPIOF_IRQn);
+	//if(mcp_init() == false){
+	//	while(1){}
+	//}
+	//gpio_enable_port(GPIOF_BASE);
+	//gpio_config_digital_enable(GPIOF_BASE, PF0);
+	//gpio_config_enable_input(GPIOF_BASE, PF0);
+	//gpio_config_enable_pullup(GPIOF_BASE, PF0);
+	//gpio_config_falling_edge_irq(GPIOF_BASE, PF0);
+	//NVIC_SetPriority(GPIOF_IRQn, 0);
+  //NVIC_EnableIRQ(GPIOF_IRQn);
+	//portf->ICR |= GPIO_ICR_GPIO_M;
 	
 }
 
@@ -108,7 +113,7 @@ void TIMER0A_Handler(void)
 
 //Green LED
 //Prescalar 1
-//Toggle everu 20 executions (2.5 Hz)
+//Toggle every 20 executions (2.5 Hz)
 void TIMER0B_Handler(void)
 {
     TimerB_Done = true;
@@ -271,14 +276,14 @@ bool fire_on_press(void)
 
     //If the direction isn't null-null we need to spawn a tear going in that direction
     if (hero->lr != IDLE_lr && hero->ud != IDLE_ud) {
-        create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
+        //create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
         return true;
     }
 
     return false;
 }
 
-bool update_game(uint8_t killed)
+void update_game(uint8_t killed)
 {
     static uint8_t wave = 1;
     static uint8_t spawned = 0;
@@ -290,12 +295,12 @@ bool update_game(uint8_t killed)
 
     if (dead < num_enemies[wave]) { //wave in progress
         if (spawned < num_enemies[wave - 1]) {
-            if (spawn_wait >= SPAWN_DELAY && spawned - dead < MAX_ENEMIES) {
+            if (spawn_wait >= SPAWN_DELAY && spawned - dead < MAX_ACTORS) {
                 spawn();
                 spawn_wait = 0;
                 spawned++;
             } 
-			elsen spawn_wait++;
+			else spawn_wait++;
         }
     } else { //wave over
         if (wave_wait < WAVE_DELAY) wave_wait++;

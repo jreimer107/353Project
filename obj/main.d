@@ -21,11 +21,11 @@
 .\obj\main.o: ..\peripherals\include\validate.h
 .\obj\main.o: ..\drivers\include\i2c.h
 .\obj\main.o: MCP23017.h
+.\obj\main.o: actors.h
+.\obj\main.o: images.h
 .\obj\main.o: ..\peripherals\include\lcd.h
-.\obj\main.o: ..\drivers\include\timers.h
+.\obj\main.o: ..\peripherals\include\eeprom.h
+.\obj\main.o: ..\peripherals\include\launchpad_io.h
 .\obj\main.o: ..\peripherals\include\ps2.h
 .\obj\main.o: ..\drivers\include\adc.h
-.\obj\main.o: ..\peripherals\include\launchpad_io.h
-.\obj\main.o: images.h
-.\obj\main.o: actors.h
-.\obj\main.o: ..\peripherals\include\eeprom.h
+.\obj\main.o: ..\drivers\include\timers.h

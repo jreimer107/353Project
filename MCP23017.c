@@ -86,7 +86,7 @@ i2c_status_t mcp_byte_read
   // Send the Lower byte of the address
 	// ADD CODE
   //==============================================================
-	status = i2cSendByte(i2c_base, address, I2C_MCS_START | I2C_MCS_RUN | I2C_MCS_STOP);
+	status = i2cSendByte(i2c_base, address, I2C_MCS_START | I2C_MCS_RUN);
 		
   //==============================================================
   // Set the I2C slave address to be the EEPROM and in Read Mode
