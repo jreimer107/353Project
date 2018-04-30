@@ -32,7 +32,7 @@
 #define MAX_ACTORS	50
 #define HERO_INVINCIBILITY	10
 #define TEAR_DAMAGE 1
-#define TEAR_RATE 5
+#define TEAR_RATE 50
 
 //Enemy constants
 #define PREFERENCE_MAX 10

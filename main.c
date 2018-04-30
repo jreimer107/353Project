@@ -142,7 +142,7 @@ int main(void) {
     myadc = (ADC0_Type*)ADC0_BASE;
     portf = (GPIOA_Type*)GPIOF_BASE;
     initialize_hardware();
-    gp_timer_start_16(TIMER0_BASE, 7, 15, TICKS, TICKS);
+    gp_timer_start_16(TIMER0_BASE, 7, 1, TICKS, TICKS);
 
     put_string("\n\r");
     put_string("************************************\n\r");
@@ -239,7 +239,7 @@ void debounce_buttons(void) {
             //Increment circular counter
             button_count[i] = (button_count[i] + 1) % TEAR_RATE;
         } 
-				else button_count[i] = 0; //Else reset count
+				else button_count[i] = 1; //Else reset count
     }
 }
 
@@ -263,8 +263,10 @@ bool fire_on_press(void) {
     }
 
     //If the direction isn't null-null we need to spawn a tear going in that direction
-    if (hero->lr != IDLE_lr && hero->ud != IDLE_ud) {
+    if (!(hero->lr == IDLE_lr && hero->ud == IDLE_ud)) {
         create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
+			hero->lr = IDLE_lr;
+			hero->ud = IDLE_ud;
         return true;
     }
 
