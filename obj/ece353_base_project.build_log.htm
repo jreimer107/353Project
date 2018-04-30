@@ -22,7 +22,7 @@ Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
 I:\ECE353\353Project\BoS.uvprojx
-Project File Date:  04/27/2018
+Project File Date:  04/30/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
@@ -32,37 +32,25 @@ images.h(34): warning:  #1-D: last line of file ends without a newline
   #endif
 images.c: 1 warning, 0 errors
 compiling main.c...
-main.h(78): warning:  #1295-D: Deprecated declaration spawn - give arg types
-  void spawn();
 images.h(34): warning:  #1-D: last line of file ends without a newline
   #endif
-actors.h(62): warning:  #1295-D: Deprecated declaration update_actors - give arg types
-  uint8_t update_actors();
-actors.h(81): warning:  #1-D: last line of file ends without a newline
+actors.h(80): warning:  #1-D: last line of file ends without a newline
   #endif
 ..\peripherals\include\eeprom.h(9): warning:  #47-D: incompatible redefinition of macro "MCP24LC32AT_DEV_ID"  (declared at line 10 of "MCP23017.h")
   #define MCP24LC32AT_DEV_ID			0x50
-main.c(324): warning:  #188-D: enumerated type mixed with another type
+main.c(311): warning:  #188-D: enumerated type mixed with another type
       lr = rand() % 3;
-main.c(325): warning:  #188-D: enumerated type mixed with another type
+main.c(312): warning:  #188-D: enumerated type mixed with another type
       ud = rand() % 3;
-main.c(342): warning:  #1-D: last line of file ends without a newline
+main.c(329): warning:  #1-D: last line of file ends without a newline
   }
-main.c: 8 warnings, 0 errors
+main.c: 6 warnings, 0 errors
 compiling actors.c...
-main.h(78): warning:  #1295-D: Deprecated declaration spawn - give arg types
-  void spawn();
 images.h(34): warning:  #1-D: last line of file ends without a newline
   #endif
-actors.h(62): warning:  #1295-D: Deprecated declaration update_actors - give arg types
-  uint8_t update_actors();
-actors.h(81): warning:  #1-D: last line of file ends without a newline
+actors.h(80): warning:  #1-D: last line of file ends without a newline
   #endif
-actors.c(60): warning:  #177-D: variable "button_count"  was declared but never referenced
-  	static uint8_t button_count = 0;
-actors.c(372): warning:  #177-D: variable "i"  was declared but never referenced
-  	uint8_t i = 0;
-actors.c: 6 warnings, 0 errors
+actors.c: 2 warnings, 0 errors
 compiling MCP23017.c...
 compiling adc.c...
 compiling gpio_port.c...
@@ -75,19 +63,30 @@ compiling timers.c...
 ..\drivers\c\timers.c(328): warning:  #940-D: missing return statement at end of non-void function "pwm_timer_config" 
   }
 ..\drivers\c\timers.c: 2 warnings, 0 errors
+compiling pc_buffer.c...
 compiling i2c.c...
+compiling uart.c...
+..\drivers\c\uart.c(184): warning:  #188-D: enumerated type mixed with another type
+         return 0;
+..\drivers\c\uart.c: 1 warning, 0 errors
 compiling launchpad_io.c...
 compiling lcd.c...
 compiling ps2.c...
+assembling startup_TM4C123.s...
 compiling eeprom.c...
 ..\peripherals\c\eeprom.c(122): warning:  #550-D: variable "status"  was set but never used
     i2c_status_t status;
 ..\peripherals\c\eeprom.c: 1 warning, 0 errors
-assembling startup_TM4C123.s...
+compiling serial_debug.c...
+..\peripherals\c\serial_debug.c(168): warning:  #177-D: variable "uart_base"  was declared but never referenced
+     uint32_t uart_base;
+..\peripherals\c\serial_debug.c(169): warning:  #177-D: variable "tx_buffer"  was declared but never referenced
+     PC_Buffer *tx_buffer;
+..\peripherals\c\serial_debug.c: 2 warnings, 0 errors
 compiling system_TM4C123.c...
 linking...
-Program Size: Code=11140 RO-data=1380 RW-data=104 ZI-data=4096  
-".\obj\ece353_base_project.axf" - 0 Error(s), 19 Warning(s).
+Program Size: Code=12720 RO-data=1380 RW-data=108 ZI-data=4124  
+".\obj\ece353_base_project.axf" - 0 Error(s), 16 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -111,12 +110,12 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: Keil::Device:Startup:1.0.1
-      Source file:   Device\Source\system_TM4C123.c
-      Source file:   Device\Source\ARM\startup_TM4C123.s
       Include file:  Device\Include\TM4C123\TM4C123.h
+      Source file:   Device\Source\ARM\startup_TM4C123.s
+      Source file:   Device\Source\system_TM4C123.c
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:09
+Build Time Elapsed:  00:00:13
 </pre>
 </body>
 </html>

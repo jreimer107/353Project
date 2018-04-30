@@ -35,6 +35,28 @@ bool tear_fired;
 
 const uint8_t num_enemies[] = {WAVE1, WAVE2, WAVE3, WAVE4, WAVE5, WAVE5, WAVE6, WAVE7, WAVE8, WAVE9, WAVE10};
 
+
+//*****************************************************************************
+// 
+//*****************************************************************************
+void DisableInterrupts(void)
+{
+  __asm {
+         CPSID  I
+  }
+}
+
+//*****************************************************************************
+// 
+//*****************************************************************************
+void EnableInterrupts(void)
+{
+  __asm {
+    CPSIE  I
+  }
+}
+
+
 //*****************************************************************************
 //*****************************************************************************
 void initialize_hardware(void) {
@@ -111,6 +133,9 @@ void GPIOF_Handler(void) {
 //*****************************************************************************
 int main(void) {
     //Initialize hero location, timer, and adc.
+		DisableInterrupts();
+		init_serial_debug(true, true);
+		EnableInterrupts();
     hero_init();
     hero = actors;
     gp_timer = (TIMER0_Type*)TIMER0_BASE;
@@ -144,6 +169,7 @@ int main(void) {
             //Shoot tears
             if (poll_button) {
                 mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
+								printf("%d ", buttons_current);
                 debounce_buttons();
                 tear_fired = fire_on_press();
                 if (tear_fired) poll_button = TEAR_RATE;
@@ -205,7 +231,7 @@ void debounce_buttons(void) {
 
     //Get update button counters based on current state of buttons
     for (i = 0; i < 4; i++) {
-        if (buttons_current & (1 << i)) { //If button is currently pressed
+        if ((~buttons_current) & (1 << i)) { //If button is currently pressed
             //Check if have had enough iterations to fire tear
             if (button_count[i] == TEAR_RATE - 1) { //Indicate that a button has been pressed sufficiently long
                 buttons_pressed[i] = true;

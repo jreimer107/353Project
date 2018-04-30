@@ -119,9 +119,9 @@ bool update_tear(actor_t *tear) {
 	//Update position
 	if(tear->move_count == TEAR_SPEED) {
 		if (tear->lr == LEFT_d) tear->x_loc--;
-		else tear->x_loc++;
+		if (tear->lr == RIGHT_d) tear->x_loc++;
 		if (tear->ud == UP_d) tear->y_loc--;
-		else tear->y_loc++;
+		if (tear->ud == DOWN_d) tear->y_loc++;
 		tear->move_count = 0;
 	}
 	else tear->move_count++;
