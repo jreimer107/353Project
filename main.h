@@ -49,10 +49,30 @@
 #define WAVE9 75
 #define WAVE10	100
 
+#define NUM_SIDES		4
+#define SPAWN_SIZE 		40
+#define SPAWN_RADIUS 	SPAWN_SIZE / 2
+#define NUM_SPAWNS_V	COLS / SPAWN_SIZE
+#define NUM_SPAWNS_H	ROWS / SPAWN_SIZE
+#define FIRST_H			SPAWN_SIZE / 2
+#define FIRST_V			SPAWN_SIZE / 2
+#define LAST_H			SPAWN_RADIUS + NUM_SPAWNS_H * SPAWN_SIZE
+#define LAST_V			SPAWN_RADIUS + NUM_SPAWNS_V * SPAWN_SIZE			
+
 #define DOWN_THRESHOLD	0x400
 #define UP_THRESHOLD	0xC00
 #define RIGHT_THRESHOLD	0x400
 #define LEFT_THRESHOLD	0xC00
+
+#define ADC_M			0x0FFF
+
+#define BUTTONS_M 		0xFF
+#define BUTTONS_UP 		0x02	//0xFE
+#define BUTTONS_DOWN 	0x04	//0xFD
+#define BUTTONS_LEFT 	0x04	//0xFB
+#define BUTTONS_RIGHT	0x08	//0xF7
+
+
 
 #define SPAWN_DELAY 10
 #define WAVE_DELAY 50

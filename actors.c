@@ -309,7 +309,6 @@ enemy_t* create_enemy(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 	new->ud = ud;
 	new->x_loc = x;
 	new->y_loc = y;
-	new->type = type;
 	new->count = 0;
 	new->move_count = 0;
 
@@ -318,11 +317,13 @@ enemy_t* create_enemy(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 	return new;
 }
 
-tear_t* create_tear(uint16_t x, uint16_t y) {
+tear_t* create_tear(void) {
 	tear_t *new = tear[num_tears];
 	if (num_tears == MAX_TEARS) return NULL;
-	new->x_loc = x;
-	new->y_loc = y;
+	new->x_loc = hero->x_loc;
+	new->y_loc = hero->y_loc;
+	new->lr = hero->lr;
+	new->ud = hero->ud;
 	new->move_count = 0;
 	num_tears++
 	return new;

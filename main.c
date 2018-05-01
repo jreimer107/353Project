@@ -89,7 +89,7 @@ void initialize_hardware(void) {
 	gpio_config_enable_input(GPIOF_BASE, PF0);
 	gpio_config_falling_edge_irq(GPIOF_BASE, PF0);
 	NVIC_SetPriority(GPIOF_IRQn, 0);
-  NVIC_EnableIRQ(GPIOF_IRQn);
+    NVIC_EnableIRQ(GPIOF_IRQn);
 	portf->ICR |= GPIO_ICR_GPIO_M;
 	//Initialize port expander
 	if(mcp_init() == false){
@@ -171,7 +171,7 @@ int main(void) {
             //Shoot tears
             if (poll_button) {
                 mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
-								//printf("%d ", buttons_current);
+				//printf("%d ", buttons_current);
                 debounce_buttons();
                 tear_fired = fire_on_press();
                 if (tear_fired) poll_button = TEAR_RATE;
@@ -182,8 +182,8 @@ int main(void) {
 
         if (ADC_Done) {
             //Read new adc values
-            ps2_x = myadc->SSFIFO2 & 0x0FFF;
-            ps2_y = myadc->SSFIFO2 & 0x0FFF;
+            ps2_x = myadc->SSFIFO2 & ADC_M;
+            ps2_y = myadc->SSFIFO2 & ADC_M;
             ADC_Done = false;
         }
 
@@ -230,18 +230,18 @@ void update_green_led(void) {
 void debounce_buttons(void) {
     static uint8_t button_count;
 	
-		if (buttons_current != 0xFF) {
+		if (buttons_current != BUTTONS_M) {
 			if (button_count >= TEAR_RATE - 1) {
-				if (~buttons_current & 0x01) { //UP
+				if (~buttons_current & BUTTONS_UP) {
 					hero->ud = UP_d;
 				}
-				else if (~buttons_current & 0x02) { //DOWN
+				else if (~buttons_current & BUTTONS_DOWN) {
 					hero->ud = DOWN_d;
 				}
-				if (~buttons_current & 0x04) { //LEFT
+				if (~buttons_current & BUTTONS_LEFT) {
 					hero->lr = LEFT_d;
 				}
-				else if (~buttons_current & 0x08) { //RIGHT
+				else if (~buttons_current & BUTTONS_RIGHT) {
 					hero->lr = RIGHT_d;
 				}
 			}
@@ -252,9 +252,9 @@ void debounce_buttons(void) {
 bool fire_on_press(void) {
     //If the direction isn't null-null we need to spawn a tear going in that direction
     if (!(hero->lr == IDLE_lr && hero->ud == IDLE_ud)) {
-        create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
-			hero->lr = IDLE_lr;
-			hero->ud = IDLE_ud;
+        create_tear();
+		hero->lr = IDLE_lr;
+		hero->ud = IDLE_ud;
         return true;
     }
 
@@ -312,14 +312,14 @@ void spawn() {
 
     lr = rand() % 3;
     ud = rand() % 3;
-    type = rand() % 4 + 2;
+    type = rand() % NUM_TYPES;
 
-    side = rand() % 4;
-    if (side < 2) {
-        spot = rand() % 6;
-        x = 20 + 40 * spot;
-        if (side == 0) y = 20; //top
-        else y = 300; //bottom
+    side = rand() % NUM_SIDES;
+    if (side % 2) {
+        spot = rand() % NUM_SPAWNS_V;
+        x = SPAWN_RADIUS + SPAWN_SIZE * spot;
+        if (side == 1) y = FIRST_V; //top
+        else y = LAST_V; //bottom
     } 
 	else {
         spot = rand() % 8;
@@ -327,5 +327,5 @@ void spawn() {
         if (side == 2) x = 20; //left
         else x = 220; //right
     }
-    create_actor(type, x, y, lr, ud);
+    create_enemy(type, x, y, lr, ud);
 }

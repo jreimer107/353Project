@@ -7,12 +7,13 @@
 #include "images.h"
 #include "lcd.h"
 
-#define HERO 0
-#define TEAR 1
-#define ZOMBIE 2
-#define BAT 3
-#define SLIME 4
-#define MIMIC 5
+//#define HERO 0
+//#define TEAR 1
+#define NUM_TYPES 4
+#define ZOMBIE 0
+#define BAT 1
+#define SLIME 2
+#define MIMIC 3
 
 #define PLAYER_HEALTH 3
 #define ZOMBIE_HEALTH 3
@@ -66,6 +67,8 @@ typedef struct enemy_t {
 } enemy_t;
 
 typedef struct tear_t {
+    lr_t lr;
+    ud_t ud;
     uint16_t x_loc;
     uint16_t y_loc;
     uint8_t move_count;
@@ -88,6 +91,7 @@ bool update_mimic(enemy_t*);
 lr_t at_edge_lr(uint16_t, uint8_t);
 ud_t at_edge_ud(uint16_t, uint8_t);
 bool detect_collision(uint16_t,uint16_t, uint8_t, uint8_t, uint16_t, uint16_t, uint8_t, uint8_t);
-actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud);
+enemy_t* create_enemy(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud);
+tear_t* create_tear(void);
 
 #endif
