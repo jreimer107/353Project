@@ -3,60 +3,58 @@
 actor_t *actors; //Hero should be head node;
 extern uint16_t ps2_x, ps2_y;
 
-//Main update function. Calls helper functions based on actor type.
-//Helper functions must complete four tasks:
-//1. Update the position of the actor.
-//2. Update the actor's state based on any collisions.
-//3. Complete any type-specific actions.
-//4. Report the aliveness of the actor.
-uint8_t update_actors() {
-	actor_t *curr_actor = actors;
-	actor_t *prev_actor = NULL;
-	bool kill;
-	uint8_t killed = 0;
-	while (curr_actor) {
-		if (curr_actor->type == HERO) {
-			kill = update_hero(curr_actor);
-		}
-		else if (curr_actor->type == TEAR) {
-			kill = update_tear(curr_actor);
-		}
-		else if (curr_actor->type == ZOMBIE) {
-			kill = update_zombie(curr_actor);
-		}
-		else if (curr_actor->type == BAT) {
-			kill = update_bat(curr_actor);
-		}
-		else if (curr_actor->type == SLIME) {
-			kill = update_slime(curr_actor);
-		}
-		else if (curr_actor->type == MIMIC) {
-			kill = update_mimic(curr_actor);
-		}
+//Reorganizing stuff for speed
+hero_t *hero;
+enemy_t *enemy;
+tear_t *tear;
 
-		//Remove actor from list if dead
-		if (kill) {
-			destroy(curr_actor);	//unrender
-			if (prev_actor) {
-				prev_actor->next = curr_actor->next;
-			}
-			else {
-				actors = curr_actor->next;
-			}
-			if (curr_actor->type != TEAR) killed++;
-			free(curr_actor);
-			curr_actor = prev_actor;
-		}
+uint8_t num_enemies;
+uint8_t num_tears;
 
-		prev_actor = curr_actor;
-		curr_actor = curr_actor->next;
-	}
-	return killed;
+void actors_init() {
+	hero = malloc(sizeof(hero_t));
+	enemy = calloc(sizeof(enemy_t) * MAX_ENEMIES);
+	tear = calloc (sizeof(tear_t) * MAX_TEARS);
 }
+
+uint8_t update_enemies() {
+	uint8_t killed, i, j;
+	//For all enemies that exist
+	for (i = 0; i < num_enemies; i++){
+		if (enemy[i].update(enemy[i])) {	//If enemy should be killed
+			//Unrender enemy
+			enemy[i].draw(enemy[i], LCD_COLOR_BLACK);
+			//Cycle enemies forward one in array
+			for (j = i; j < num_enemies - 1; j++) {
+				enemy[j] = enemy[j + 1];
+			}
+			//Decrement num enemies
+			num_enemies--;
+			killed++;	
+		}
+	}
+	return killed;	//Return how many were killed to update rounds
+}
+
+void update_tears() {
+	uint8_t i, j;
+	for (i = 0; i < num_tears; i++) {
+		if (update_tear(tear[i])) {
+			draw(tear[i], LCD_COLOR_WHITE);
+			for (j = i; j < num_tears - 1; j++) {
+				tear[j] = tear[j + 1];
+			}
+			num_tears--;
+		}
+	}
+}
+
+
 
 //Hero has an invincibility counter that prevents it from being damaged continuously.
 //It also fires tears.
-bool update_hero(actor_t *hero) {
+bool update_hero() {
+	uint8_t i;
 	lr_t edge_lr = at_edge_lr(hero);
 	ud_t edge_ud = at_edge_ud(hero);
 
@@ -64,13 +62,11 @@ bool update_hero(actor_t *hero) {
 
 	//Update collisions
 	if (!hero->count) { 
-		actor_t *enemy = actors->next;	//First actor is hero
-		while(enemy) {
-			if (enemy->type != TEAR && detect_collision(hero, enemy)) {
+		for (i = 0; (i < MAX_ENEMIES) && enemy[i].alive; i++){
+			if (detect_collision(hero, enemy[i])) {
 				hero->count = HERO_INVINCIBILITY;
 				hero->health--;
 			}
-			enemy = enemy->next;
 		}
 	}
 	//Invincibility count is active, do not check collisions
@@ -99,16 +95,14 @@ bool update_hero(actor_t *hero) {
 }
 
 //Missile dies on contact with enemy, travels in straight line, and hurts enemies.
-bool update_tear(actor_t *tear) {
-	actor_t *enemy = actors->next;
+bool update_tear(tear_t *tear) {
 
 	//Check enemy collision
-	while(enemy) {
-		if (enemy->type != HERO && enemy->type != TEAR && detect_collision(tear, enemy)) {
-			enemy->health -= TEAR_DAMAGE;
+	for (uint8_t i = 0; (i < MAX_ENEMIES) && enemy[i].alive; i++){
+		if (detect_collision(tear, enemy[i])) {
+			enemy[i].health -= TEAR_DAMAGE;
 			return true;
 		}
-		enemy = enemy->next;
 	}
 
 	//Check if off screen
@@ -131,9 +125,8 @@ bool update_tear(actor_t *tear) {
 }
 
 //Zombies randomly sway towards player.
-bool update_zombie(actor_t *zombie) {
+bool update_zombie(emeny_t *zombie) {
 	uint8_t direction_preference = rand() % PREFERENCE_MAX;
-	actor_t *hero = actors; //Hero is head of actors list.
 
 	//If dead, return dead.
 	if (zombie->health <= 0) return true;
@@ -156,7 +149,7 @@ bool update_zombie(actor_t *zombie) {
 }
 
 //Bats bounce around the screen.
-bool update_bat(actor_t *bat) {
+bool update_bat(enemy_t *bat) {
 	//If given only one direction they will repeatedy go back and forth
 	//If given two directions they will bounce around like tv screensavers
 	lr_t edge_lr = at_edge_lr(bat);
@@ -185,7 +178,7 @@ bool update_bat(actor_t *bat) {
 }
 
 //Slimes only move every so often. They have a counter that tells them when to move and when not to.
-bool update_slime(actor_t *slime) {
+bool update_slime(enemy_t *slime) {
 	lr_t edge_lr = at_edge_lr(slime);
 	ud_t edge_ud = at_edge_ud(slime);
 
@@ -229,7 +222,7 @@ bool update_slime(actor_t *slime) {
 }
 
 //Mimics, surprisingly, mimic the movement of the player, but slower (same speed, faster? variants?)
-bool update_mimic(actor_t *mimic) {
+bool update_mimic(enemy_t *mimic) {
 	lr_t edge_lr = at_edge_lr(mimic);
 	ud_t edge_ud = at_edge_ud(mimic);
 	
@@ -248,32 +241,21 @@ bool update_mimic(actor_t *mimic) {
 	return false;
 }
 
-actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
-	actor_t *actor = malloc(sizeof(actor_t));
-	if (type == TEAR) {
-		actor->bitmap = (uint8_t*)tearBitmap;
-		actor->height = TEAR_HEIGHT;
-		actor->width = TEAR_WIDTH;
-		actor->next = 0x0;
-	}
-	else if (type == ZOMBIE) {
-		actor->bitmap = (uint8_t*)zombieBitmap;
-		actor->height = ZOMBIE_HEIGHT;
-		actor->width = ZOMBIE_WIDTH;
-		actor->health = ZOMBIE_HEALTH;
-		actor->next = 0x0;
-	}
+enemy_t* create_enemy(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
+	if (num_enemies == MAX_ENEMIES) return NULL;
+	
+	if (type == ZOMBIE) {
+        enemy[num_enemies].health = ZOMBIE_HEALTH;
+        enemy[num_enemies].update = update_zombie;
+        enemy[num_enemies].draw = draw_zombie;
+
+    }
 	else if (type == BAT) {
-		actor->bitmap = (uint8_t*)batBitmap;
-		actor->height = BAT_HEIGHT;
-		actor->width = BAT_WIDTH;
-		actor->health = BAT_HEALTH;
-		actor->next = 0x0;	
+        enemy[num_enemies].health = BAR_HEALTH;
+        enemy[num_enemies].update = update_bat;
+        enemy[num_enemies].draw = draw_bat;
 	}
 	else if (type == SLIME) {
-		actor->bitmap = (uint8_t*)slimeBitmap;
-		actor->height = SLIME_HEIGHT;
-		actor->width = SLIME_WIDTH;
 		actor->health = SLIME_HEALTH;
 		actor->next = 0x0;	
 	}

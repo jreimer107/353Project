@@ -30,6 +30,8 @@
 #define MIMIC_SPEED 	1
 
 #define MAX_ACTORS	50
+#define MAX_ENEMIES 6
+#define MAX_TEARS 10
 #define HERO_INVINCIBILITY	50
 #define TEAR_DAMAGE 1
 //Two Tear Rates needed
@@ -58,6 +60,52 @@ typedef struct actor_t {
 	uint8_t move_count;
 	struct actor_t *next;
 } actor_t;
+
+
+typedef struct hero_t {
+    lr_t lr;
+    ud_t ud;
+    uint16_t x_loc;
+    uint16_t y_loc;
+    int8_t health;
+    uint8_t count;
+    uint8_t move_count;
+} hero_t;
+
+typedef struct enemy_t {
+	Updater_t update;
+	Destroyer_t destroy;
+    lr_t lr;
+    ud_t ud;
+    uint16_t x_loc;
+    uint16_t y_loc;
+    int8_t health;
+    uint8_t count;
+    uint8_t move_count;
+} enemy_t;
+
+typedef struct tear_t {
+    uint16_t x_loc;
+    uint16_t y_loc;
+    uint8_t move_count;
+} tear_t;
+
+bool update_hero(void);
+bool update_tear(tear_t*);
+
+typedef bool (*Updater_t)(enemy_t*);
+bool update_zombie(enemy_t*);
+bool update_bat(enemy_t*);
+bool update_slime(enemy_t*);
+bool update_mimic(enemy_t*);
+
+void draw_hero(uint8_t color);
+void draw_tear(tear_t*, uint8_t color);
+typedef void (*Draw_t)(enemy_t*, uint8_t color);
+void draw_zombie(enemy_t*, uint8_t color);
+void draw_bat(enemy_t*, uint8_t color);
+void draw_slime(enemy_t*, uint8_t color);
+void draw_mimic(enemy_t*, uint8_t color);
 
 uint8_t update_actors(void);
 bool update_hero(actor_t*);
