@@ -156,6 +156,8 @@ int main(void) {
     put_string("************************************\n\r");
 
     //Main loop
+		spawn();
+		spawn();
     while (1) {
         if (TimerA_Done) {
             update_red_led();
@@ -169,7 +171,7 @@ int main(void) {
             //Shoot tears
             if (poll_button) {
                 mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
-								printf("%d ", buttons_current);
+								//printf("%d ", buttons_current);
                 debounce_buttons();
                 tear_fired = fire_on_press();
                 if (tear_fired) poll_button = TEAR_RATE;
@@ -282,17 +284,28 @@ void update_game(uint8_t killed) {
 
     dead += killed;
 
-    if (dead < num_enemies[wave]) { //wave in progress
-        if (spawned < num_enemies[wave - 1]) {
+	if ((dead % 4) == 0){
+		spawn();
+		spawn();
+		spawn();
+		dead = 1;
+		//spawned = 0;
+		wave++; //for high score
+	}
+	  
+	
+/*	
+    if (dead < num_enemies[0]) { //wave in progress
+        if (spawned < num_enemies[0]) {
             if (spawn_wait >= SPAWN_DELAY && spawned - dead < MAX_ACTORS) {
                 spawn();
                 spawn_wait = 0;
                 spawned++;
             } 
-			else spawn_wait++;
+						else spawn_wait++;
         }
     } 
-	else { //wave over
+		else { //wave over
         if (wave_wait < WAVE_DELAY) wave_wait++;
         else {
             wave_wait = 0;
@@ -301,6 +314,7 @@ void update_game(uint8_t killed) {
             dead = 0;
         }
     }
+*/
 }
 
 void spawn() {

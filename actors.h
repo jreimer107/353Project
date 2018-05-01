@@ -18,28 +18,28 @@
 #define ZOMBIE_HEALTH 3
 #define BAT_HEALTH 2
 #define SLIME_HEALTH 4
-#define MIMIC_HEALTH 5
+#define MIMIC_HEALTH 2
 
 //Speeds (lower = faster)	Change this|
 #define MAX_SPEED		10
-#define PLAYER_SPEED 	MAX_SPEED - 3 + 1
-#define TEAR_SPEED 		MAX_SPEED - 1 + 1
-#define ZOMBIE_SPEED 	MAX_SPEED - 2 + 1
-#define BAT_SPEED 		MAX_SPEED - 3 + 1
-#define SLIME_SPEED 	MAX_SPEED - 4 + 1
-#define MIMIC_SPEED 	MAX_SPEED - 5 + 1
+#define PLAYER_SPEED 	3
+#define TEAR_SPEED 		1
+#define ZOMBIE_SPEED 	2
+#define BAT_SPEED 		2
+#define SLIME_SPEED 	3
+#define MIMIC_SPEED 	1
 
 #define MAX_ACTORS	50
-#define HERO_INVINCIBILITY	10
+#define HERO_INVINCIBILITY	50
 #define TEAR_DAMAGE 1
 //Two Tear Rates needed
 #define TEAR_RATE 50
 
 //Enemy constants
-#define PREFERENCE_MAX 10
+#define PREFERENCE_MAX 20
 #define PREFERENCE_CUTOFF PREFERENCE_MAX / 2
-#define SLIME_COUNT 10
-#define HOP_THRESHOLD 0x0F
+#define SLIME_COUNT 50
+#define HOP_THRESHOLD 0x7F
 
 typedef enum {IDLE_lr, RIGHT_d, LEFT_d} lr_t;
 typedef enum {IDLE_ud, UP_d, DOWN_d} ud_t;

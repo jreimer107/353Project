@@ -43,9 +43,9 @@ uint8_t update_actors() {
 			else {
 				actors = curr_actor->next;
 			}
+			if (curr_actor->type != TEAR) killed++;
 			free(curr_actor);
 			curr_actor = prev_actor;
-			killed++;
 		}
 
 		prev_actor = curr_actor;
@@ -119,9 +119,9 @@ bool update_tear(actor_t *tear) {
 	//Update position
 	if(tear->move_count == TEAR_SPEED) {
 		if (tear->lr == LEFT_d) tear->x_loc--;
-		if (tear->lr == RIGHT_d) tear->x_loc++;
+		else if (tear->lr == RIGHT_d) tear->x_loc++;
 		if (tear->ud == UP_d) tear->y_loc--;
-		if (tear->ud == DOWN_d) tear->y_loc++;
+		else if (tear->ud == DOWN_d) tear->y_loc++;
 		tear->move_count = 0;
 	}
 	else tear->move_count++;
@@ -169,7 +169,7 @@ bool update_bat(actor_t *bat) {
 	if (edge_lr == LEFT_d) bat->lr = RIGHT_d;
 	if (edge_lr == RIGHT_d) bat->lr = LEFT_d;
 	if (edge_ud == UP_d) bat->ud = DOWN_d;
-	if (edge_ud == RIGHT_d) bat->ud = UP_d;
+	if (edge_ud == DOWN_d) bat->ud = UP_d;
 
 	//Move at speed inteval
 	if (bat->move_count == BAT_SPEED){
@@ -203,7 +203,7 @@ bool update_slime(actor_t *slime) {
 			if (hop_dir % 2) {
 				//If we are greater or equal to threshold, hop right. Else hop left.
 				if (hop_dir > HOP_THRESHOLD) slime->lr = RIGHT_d;
-				else slime->lr = RIGHT_d;
+				else slime->lr = LEFT_d;
 			}
 			else {
 				//If we are greater or equal to threshold, hop down. Else hop up.
@@ -219,8 +219,8 @@ bool update_slime(actor_t *slime) {
 	if (slime->move_count == SLIME_SPEED) {
 		if (slime->lr == LEFT_d && edge_lr != LEFT_d) slime->x_loc--;
 		else if (slime->lr == RIGHT_d && edge_lr != RIGHT_d) slime->x_loc++;
-		else if (slime->ud == UP_d && edge_lr != UP_d) slime->y_loc--;
-		else if (slime->ud == DOWN_d && edge_lr != DOWN_d) slime->y_loc++;
+		else if (slime->ud == UP_d && edge_ud != UP_d) slime->y_loc--;
+		else if (slime->ud == DOWN_d && edge_ud != DOWN_d) slime->y_loc++;
 		slime->move_count = 0;
 	}
 	else slime->move_count++;
@@ -305,8 +305,8 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 //returns RIGHT if the actor is at the right edge of the screen
 //else returns IDLE.
 lr_t at_edge_lr(actor_t *actor) {
-	if (actor->x_loc < actor->width / 2 + 1) return LEFT_d;
-	if (actor->x_loc > COLS - actor->width / 2 - 1) return RIGHT_d;
+	if (actor->x_loc < actor->width / 2 + 2) return LEFT_d;
+	if (actor->x_loc > COLS - actor->width / 2 - 2) return RIGHT_d;
 	return IDLE_lr;
 }
 

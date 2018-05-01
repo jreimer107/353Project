@@ -208,7 +208,7 @@ const uint8_t tearBitmap[] =
 // 
 //  Image data for slime
 // 
-
+/*
 const uint8_t slimeBitmap[] =
 {
 	0x00, 0x00, //             
@@ -224,11 +224,11 @@ const uint8_t slimeBitmap[] =
 	0x1F, 0x80, //    ######   
 	0x00, 0x00, //             
 };
-
+*/
 // 
 //  Image data for mimic
 // 
-
+/*
 const uint8_t mimicBitmap[] =
 {
 	0x00, 0x00, 0x00, 0x00, 0x00, //                                         
@@ -272,7 +272,7 @@ const uint8_t mimicBitmap[] =
 	0x00, 0x00, 0x00, 0x00, 0x00, //                                         
 	0x00, 0x00, 0x00, 0x00, 0x00, //                                         
 };
-
+*/
 
 // 
 //  Image data for missle
