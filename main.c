@@ -228,42 +228,28 @@ void update_green_led(void) {
 //UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3
 //Tears will keep firing as long as buttons are held.
 void debounce_buttons(void) {
-    int i;
-    static uint8_t button_count[4];
-
-    //Get update button counters based on current state of buttons
-    for (i = 0; i < 4; i++) {
-        if ((~buttons_current) & (1 << i)) { //If button is currently pressed
-            //Check if have had enough iterations to fire tear
-            if (button_count[i] == TEAR_RATE - 1) { //Indicate that a button has been pressed sufficiently long
-                buttons_pressed[i] = true;
-            }
-            //Increment circular counter
-            button_count[i] = (button_count[i] + 1) % TEAR_RATE;
-        } 
-				else button_count[i] = 0; //Else reset count
-    }
+    static uint8_t button_count;
+	
+		if (buttons_current != 0xFF) {
+			if (button_count >= TEAR_RATE - 1) {
+				if (~buttons_current & 0x01) { //UP
+					hero->ud = UP_d;
+				}
+				else if (~buttons_current & 0x02) { //DOWN
+					hero->ud = DOWN_d;
+				}
+				if (~buttons_current & 0x04) { //LEFT
+					hero->lr = LEFT_d;
+				}
+				else if (~buttons_current & 0x08) { //RIGHT
+					hero->lr = RIGHT_d;
+				}
+			}
+			button_count = (button_count + 1) % TEAR_RATE; 
+		}
 }
 
 bool fire_on_press(void) {
-    //Update hero direction
-    if (buttons_pressed[0]) {
-        hero->ud = UP_d;
-        buttons_pressed[0] = false;
-    }
-    if (buttons_pressed[1]) {
-        hero->ud = DOWN_d;
-        buttons_pressed[1] = false;
-    }
-    if (buttons_pressed[2]) {
-        hero->lr = LEFT_d;
-        buttons_pressed[2] = false;
-    }
-    if (buttons_pressed[3]) {
-        hero->lr = RIGHT_d;
-        buttons_pressed[3] = false;
-    }
-
     //If the direction isn't null-null we need to spawn a tear going in that direction
     if (!(hero->lr == IDLE_lr && hero->ud == IDLE_ud)) {
         create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
