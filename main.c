@@ -133,10 +133,10 @@ void GPIOF_Handler(void) {
 //*****************************************************************************
 int main(void) {
     //Initialize hero location, timer, and adc.
-		DisableInterrupts();
-		init_serial_debug(true, true);
-		EnableInterrupts();
-    hero_init();
+	DisableInterrupts();
+	init_serial_debug(true, true);
+	EnableInterrupts();
+    actors_init();
     hero = actors;
     gp_timer = (TIMER0_Type*)TIMER0_BASE;
     myadc = (ADC0_Type*)ADC0_BASE;
@@ -156,16 +156,16 @@ int main(void) {
     put_string("************************************\n\r");
 
     //Main loop
-		spawn();
-		spawn();
+	spawn();
+	spawn();
     while (1) {
         if (TimerA_Done) {
-            update_red_led();
+            //update_red_led();
             TimerA_Done = false;
         }
 
         if (TimerB_Done) {
-            update_green_led();
+            //update_green_led();
             get_ps2_value(ADC0_BASE);
             update_game(update_actors());
             //Shoot tears

@@ -21,7 +21,6 @@
 #define MIMIC_HEALTH 2
 
 //Speeds (lower = faster)	Change this|
-#define MAX_SPEED		10
 #define PLAYER_SPEED 	3
 #define TEAR_SPEED 		1
 #define ZOMBIE_SPEED 	2
@@ -29,7 +28,6 @@
 #define SLIME_SPEED 	3
 #define MIMIC_SPEED 	1
 
-#define MAX_ACTORS	50
 #define MAX_ENEMIES 6
 #define MAX_TEARS 10
 #define HERO_INVINCIBILITY	50
@@ -46,22 +44,6 @@
 typedef enum {IDLE_lr, RIGHT_d, LEFT_d} lr_t;
 typedef enum {IDLE_ud, UP_d, DOWN_d} ud_t;
 
-typedef struct actor_t {
-	uint8_t *bitmap;
-	lr_t lr;
-	ud_t ud;
-	uint16_t x_loc;
-	uint16_t y_loc;
-	uint8_t type;
-	int8_t health;
-	uint8_t count;
-	uint8_t height;
-	uint8_t width;
-	uint8_t move_count;
-	struct actor_t *next;
-} actor_t;
-
-
 typedef struct hero_t {
     lr_t lr;
     ud_t ud;
@@ -74,7 +56,6 @@ typedef struct hero_t {
 
 typedef struct enemy_t {
 	Updater_t update;
-	Destroyer_t destroy;
     lr_t lr;
     ud_t ud;
     uint16_t x_loc;
@@ -90,6 +71,11 @@ typedef struct tear_t {
     uint8_t move_count;
 } tear_t;
 
+
+uint8_t update_actors(void);
+void update_tears(void);
+uint8_t update_enemies(void);
+
 bool update_hero(void);
 bool update_tear(tear_t*);
 
@@ -99,31 +85,9 @@ bool update_bat(enemy_t*);
 bool update_slime(enemy_t*);
 bool update_mimic(enemy_t*);
 
-void draw_hero(uint8_t color);
-void draw_tear(tear_t*, uint8_t color);
-typedef void (*Draw_t)(enemy_t*, uint8_t color);
-void draw_zombie(enemy_t*, uint8_t color);
-void draw_bat(enemy_t*, uint8_t color);
-void draw_slime(enemy_t*, uint8_t color);
-void draw_mimic(enemy_t*, uint8_t color);
-
-uint8_t update_actors(void);
-bool update_hero(actor_t*);
-bool update_tear(actor_t*);
-bool update_zombie(actor_t*);
-bool update_bat(actor_t*);
-bool update_slime(actor_t*);
-bool update_mimic(actor_t*);
-void hero_init(void);
-void draw_actors(void);
-void destroy(actor_t*);
-
-lr_t at_edge_lr(actor_t*);
-ud_t at_edge_ud(actor_t*);
-bool detect_collision(actor_t *a , actor_t *b);
-void destroy(actor_t*);
+lr_t at_edge_lr(uint16_t, uint8_t);
+ud_t at_edge_ud(uint16_t, uint8_t);
+bool detect_collision(uint16_t,uint16_t, uint8_t, uint8_t, uint16_t, uint16_t, uint8_t, uint8_t);
 actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud);
-
-
 
 #endif

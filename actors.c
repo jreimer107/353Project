@@ -12,18 +12,32 @@ uint8_t num_enemies;
 uint8_t num_tears;
 
 void actors_init() {
+	num_enemies = 0;
+	num_tears = 0;
 	hero = malloc(sizeof(hero_t));
-	enemy = calloc(sizeof(enemy_t) * MAX_ENEMIES);
+    hero->count = 0;
+    hero->health = PLAYER_HEALTH;
+    hero->lr = IDLE_lr;
+    hero->ud = IDLE_ud;
+    hero->move_count = 0;
+    hero->x_loc = COLS / 2;
+    hero->y_loc = ROWS / 2;
+    enemy = calloc(sizeof(enemy_t) * MAX_ENEMIES);
 	tear = calloc (sizeof(tear_t) * MAX_TEARS);
 }
+
+uint8_t update_actors(void) {
+	update_hero();
+	update_tears();
+	return update_enemies();
+}
+
 
 uint8_t update_enemies() {
 	uint8_t killed, i, j;
 	//For all enemies that exist
 	for (i = 0; i < num_enemies; i++){
 		if (enemy[i].update(enemy[i])) {	//If enemy should be killed
-			//Unrender enemy
-			enemy[i].draw(enemy[i], LCD_COLOR_BLACK);
 			//Cycle enemies forward one in array
 			for (j = i; j < num_enemies - 1; j++) {
 				enemy[j] = enemy[j + 1];
@@ -40,7 +54,6 @@ void update_tears() {
 	uint8_t i, j;
 	for (i = 0; i < num_tears; i++) {
 		if (update_tear(tear[i])) {
-			draw_tear(tear[i], LCD_COLOR_BLACK);
 			for (j = i; j < num_tears - 1; j++) {
 				tear[j] = tear[j + 1];
 			}
@@ -49,8 +62,6 @@ void update_tears() {
 	}
 }
 
-
-
 //Hero has an invincibility counter that prevents it from being damaged continuously.
 //It also fires tears.
 bool update_hero() {
@@ -58,7 +69,10 @@ bool update_hero() {
 	lr_t edge_lr = at_edge_lr(hero->x_loc, STEVE_WIDTH);
 	ud_t edge_ud = at_edge_ud(hero->y_loc, STEVE_HEIGHT);
 
-	if (!hero->health) return true;
+	if (!hero->health) {
+		lcd_draw_image(hero->x_loc, STEVE_WIDTH, hero->y_loc, STEVE_HEIGHT, &steveBitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+		return true;
+	}
 
 
 	//Invincibility count is active, do not check collisions
@@ -83,6 +97,8 @@ bool update_hero() {
 	else hero->move_count++;
 
 	//Report aliveness (false for alive)
+	lcd_draw_image(hero->x_loc, STEVE_WIDTH, hero->y_loc, STEVE_HEIGHT, &steveBitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+	
 	return false;
 }
 
@@ -90,6 +106,7 @@ bool update_hero() {
 bool update_tear(tear_t *tear) {
 	//Check if off screen
 	if (at_edge_lr(tear->x_loc, TEAR_WIDTH) != IDLE_lr || at_edge_ud(tear->y_loc, TEAR_HEIGHT) != IDLE_ud) {
+		lcd_draw_image(tear->x_loc, TEAR_WIDTH, tear->y_loc, TEAR_HEIGHT, &tearBitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
 		return true;
 	}
 	
@@ -104,6 +121,7 @@ bool update_tear(tear_t *tear) {
 	else tear->move_count++;
 
 	//If we get here tear is still alive
+	lcd_draw_image(tear->x_loc, TEAR_WIDTH, tear->y_loc, TEAR_HEIGHT, &tearBitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
 	return false;
 }
 
@@ -375,24 +393,3 @@ bool detect_collision(uint16_t a_x, uint16_t a_y, uint8_t a_height, uint8_t a_wi
 		return false;
 	else return true;
 }
-
-
-void hero_init(void){
-	actor_t *hero;
-	actors = malloc(sizeof(actor_t));
-	hero = actors;
-	hero->bitmap = (uint8_t*)&heroBitmap;
-	//hero->clear_bitmap = (uint8_t*)&heroErase;
-	hero->count = 0;
-	hero->health = PLAYER_HEALTH;
-	hero->height = STEVE_HEIGHT;
-	hero->width = STEVE_WIDTH;
-	hero->lr = IDLE_lr;
-	hero->ud = IDLE_ud;
-	hero->move_count = 0;
-	hero->type = HERO;
-	hero->x_loc = COLS / 2;
-	hero->y_loc = ROWS /2;
-	hero->next = NULL;
-}
-
