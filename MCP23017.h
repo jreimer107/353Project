@@ -7,7 +7,7 @@
 #include "gpio_port.h"
 
 //Look at the schematic for reasoning.
-#define MCP24LC32AT_DEV_ID			0x27
+#define MCP23017_DEV_ID			0x27
 
 //*****************************************************************************
 // Fill out the #defines below to configure which pins are connected to

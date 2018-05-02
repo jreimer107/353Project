@@ -37,9 +37,10 @@
 #include "i2c.h"
 #include "MCP23017.h"
 #include "ece353_hw2_fonts.h"
+#include "music.h"
 
-#define TICKS 62500
-#define LED_CYCLE 20
+//#define TICKS 62500
+//#define LED_CYCLE 20
 
 #define WAVE1 3
 #define WAVE2 6

@@ -103,7 +103,7 @@ void initialize_hardware(void) {
 	}
 	
 
-	
+	play_sequence((uint32_t(*)[2])nothing,1);
 	pwm_timer_config(TIMER1_BASE);
 	gpio_config_enable_output(GPIOF_BASE,PF2);
 	gpio_config_alternate_function(GPIOF_BASE, PF2);
@@ -130,6 +130,11 @@ void TIMER0B_Handler(void)
     gp_timer->ICR |= TIMER_ICR_TBTOCINT;
 }
 
+void TIMER1B_Handler(void) {
+	gp_timer2->ICR |= TIMER_ICR_TBTOCINT;
+	next_in_sequence();
+}
+
 void ADC0SS2_Handler(void)
 {
     ADC_Done = true;
@@ -148,7 +153,7 @@ void GPIOF_Handler(void) {
 //*****************************************************************************
 int main(void) {
     //Initialize hero location, timer, and adc.
-	char game_over_message[20];
+	char message[20];
 	uint8_t high_score;
 	uint8_t killed;
 	uint8_t prev_wave = 0;
@@ -159,6 +164,7 @@ int main(void) {
     hero_init();
     hero = actors;
     gp_timer = (TIMER0_Type*)TIMER0_BASE;
+	gp_timer2 = (TIMER0_Type*)TIMER1_BASE;
     myadc = (ADC0_Type*)ADC0_BASE;
     portf = (GPIOA_Type*)GPIOF_BASE;
     initialize_hardware();
@@ -203,6 +209,7 @@ int main(void) {
             ps2_y = myadc->SSFIFO2 & 0x0FFF;
             ADC_Done = false;
         }
+		draw_actors();
     }
 	lcd_clear_screen(LCD_COLOR_BLACK);
 	eeprom_byte_read(I2C1_BASE, 256, &high_score);
@@ -210,10 +217,10 @@ int main(void) {
 		eeprom_byte_write(I2C1_BASE, 256, wave);
 		high_score = wave;
 	}
-	sprintf(game_over_message,"High Score: %d",high_score);
-	lcd_print_stringXY(game_over_message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
-	sprintf(game_over_message,"Your Score: %d",wave);
-	lcd_print_stringXY(game_over_message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+	sprintf(message,"High Score: %d",high_score);
+	lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+	sprintf(message,"Your Score: %d",wave);
+	lcd_print_stringXY(message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
 	while(1){}
 }
 
@@ -223,9 +230,9 @@ void debounce_buttons(void) {
     static uint8_t button_count = 0;
 	
 		if (buttons_current != 0xFF) {
-			if (button_count == TEAR_RATE - 4) play_freq(TIMER1_BASE, 1000);
-			else if (button_count == TEAR_RATE - 3) play_freq(TIMER1_BASE, 500);
-			else if (button_count == TEAR_RATE - 2) play_freq(TIMER1_BASE, 400);
+			//if (button_count == TEAR_RATE - 4) play_freq(TIMER1_BASE, 1000);
+			//else if (button_count == TEAR_RATE - 3) play_freq(TIMER1_BASE, 500);
+			//else if (button_count == TEAR_RATE - 2) play_freq(TIMER1_BASE, 400);
 			if (button_count >= TEAR_RATE - 1) {
 				if (~buttons_current & 0x01) { //UP
 					hero->ud = UP_d;
@@ -239,11 +246,11 @@ void debounce_buttons(void) {
 				else if (~buttons_current & 0x08) { //RIGHT
 					hero->lr = RIGHT_d;
 				}
-				play_freq(TIMER1_BASE, 0);
+				//play_freq(TIMER1_BASE, 0);
 			}
 			button_count = (button_count + 1) % TEAR_RATE; 
 		}
-		else play_freq(TIMER1_BASE, 0);
+		//else play_freq(TIMER1_BASE, 0);
 }
 
 void debounce_reset(void) {
@@ -261,6 +268,7 @@ void debounce_reset(void) {
 
 
 bool fire_on_press(void) {
+	play_sequence((uint32_t(*)[2])tear_sound, 4);
     //If the direction isn't null-null we need to spawn a tear going in that direction
     if (!(hero->lr == IDLE_lr && hero->ud == IDLE_ud)) {
         create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);

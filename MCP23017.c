@@ -31,7 +31,7 @@ i2c_status_t mcp_byte_write
   // Set the I2C address to be the EEPROM
 	// ADD CODE
   //==============================================================
-		status = i2cSetSlaveAddr(i2c_base, MCP24LC32AT_DEV_ID, I2C_WRITE);
+		status = i2cSetSlaveAddr(i2c_base, MCP23017_DEV_ID, I2C_WRITE);
   
 		
   //==============================================================
@@ -80,7 +80,7 @@ i2c_status_t mcp_byte_read
   // Set the I2C slave address to be the EEPROM and in Write Mode
 	// ADD CODE
   //==============================================================
-	status = i2cSetSlaveAddr(i2c_base, MCP24LC32AT_DEV_ID, I2C_WRITE);
+	status = i2cSetSlaveAddr(i2c_base, MCP23017_DEV_ID, I2C_WRITE);
 
   //==============================================================
   // Send the Lower byte of the address
@@ -92,7 +92,7 @@ i2c_status_t mcp_byte_read
   // Set the I2C slave address to be the EEPROM and in Read Mode
 	// ADD CODE
   //==============================================================
-	status = i2cSetSlaveAddr(i2c_base, MCP24LC32AT_DEV_ID, I2C_READ);
+	status = i2cSetSlaveAddr(i2c_base, MCP23017_DEV_ID, I2C_READ);
 
   //==============================================================
   // Read the data returned by the EEPROM

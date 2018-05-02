@@ -6,6 +6,7 @@
 
 #include "driver_defines.h"
 
+#define TICKS 62500
 
 //*****************************************************************************
 // Configure a general purpose timer to be a 32-bit timer.  
@@ -68,6 +69,6 @@ bool gp_timer_config_16(uint32_t base_addr, uint32_t mode, bool count_up, bool e
 bool gp_timer_start_16(uint32_t base_addr, uint8_t prescalerA_value, uint8_t prescalerB_value, uint16_t ILRA_value, uint16_t ILRB_value);
 
 bool pwm_timer_config(uint32_t base_addr);
-bool play_freq(uint32_t base_addr, uint32_t frequency);
+bool play_freq(uint32_t base_addr, uint32_t frequency, uint16_t duration);
 
 #endif
