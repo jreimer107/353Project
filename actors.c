@@ -41,7 +41,7 @@ uint8_t update_actors() {
 				prev_actor->next = curr_actor->next;
 			}
 			else {
-				actors = curr_actor->next;
+				return 0xFF;
 			}
 			if (curr_actor->type != TEAR) killed++;
 			free(curr_actor);
@@ -62,7 +62,9 @@ bool update_hero(actor_t *hero) {
 	char message[20];
 	uint8_t high_score;
 
+
 	if (hero->health <= 0){
+		/*
 		lcd_clear_screen(LCD_COLOR_BLACK);
 		eeprom_byte_read(I2C1_BASE,256,&high_score);
 		if(wave > high_score){
@@ -73,6 +75,8 @@ bool update_hero(actor_t *hero) {
 		lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
 		sprintf(message,"Your Score: %d",wave);
 		lcd_print_stringXY(message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+		//while(1) {}
+		*/
 		return true;
 	}
 
