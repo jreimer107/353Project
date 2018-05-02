@@ -328,7 +328,7 @@ bool pwm_timer_config(uint32_t base_addr){
 	//Set to TICKS (62500)
 	//50Mhz / 100 / 62500 = 8
 	//Need to scale duration by 8.
-	music_timer -> TBPR = TICKS;
+	music_timer -> TBILR = TICKS;
 	
 	//Enable/disable interrupts
 	music_timer -> IMR &= ~TIMER_IMR_TATOIM;
@@ -370,12 +370,12 @@ bool play_freq(uint32_t base_addr, uint32_t frequency, uint16_t duration) {
 	//Set to TICKS (62500)
 	//50Mhz / 100 / 62500 = 8
 	//Need to scale duration by 8.
-	music_timer -> TBPR = TICKS;
+	music_timer -> TBILR = TICKS;
 	
 	//music_timer->TBPR = 199;
 	//music_timer->TBILR = 5000;
 	//Load timer b with duration
-	music_timer->TBILR = duration << 3; //Dur * 8
+	music_timer->TBPR = 15;//duration << 3; //Dur * 8
 
 	//Clear interrupts
 	music_timer->ICR |= TIMER_ICR_TATOCINT | TIMER_ICR_TBTOCINT;

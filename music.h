@@ -8,6 +8,6 @@ extern const uint32_t nothing[][2];
 extern const uint32_t tear_sound[][2];
 
 void next_in_sequence(void);
-void play_sequence(uint32_t (*sequence)[2], uint8_t size);
+void play_sequence(uint8_t sequence);
 
 #endif

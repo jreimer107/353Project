@@ -103,7 +103,7 @@ void initialize_hardware(void) {
 	}
 	
 
-	play_sequence((uint32_t(*)[2])nothing,1);
+	play_sequence(0);
 	pwm_timer_config(TIMER1_BASE);
 	gpio_config_enable_output(GPIOF_BASE,PF2);
 	gpio_config_alternate_function(GPIOF_BASE, PF2);
@@ -173,6 +173,7 @@ int main(void) {
     //Main loop
 	spawn();
 	spawn();
+	
     while (1) {
 		if(wave != prev_wave || prev_health != hero->health){
 			prev_wave = wave;
@@ -268,12 +269,13 @@ void debounce_reset(void) {
 
 
 bool fire_on_press(void) {
-	play_sequence((uint32_t(*)[2])tear_sound, 4);
+	
     //If the direction isn't null-null we need to spawn a tear going in that direction
     if (!(hero->lr == IDLE_lr && hero->ud == IDLE_ud)) {
         create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
-			hero->lr = IDLE_lr;
-			hero->ud = IDLE_ud;
+		play_sequence(1);
+		hero->lr = IDLE_lr;
+		hero->ud = IDLE_ud;
         return true;
     }
 
