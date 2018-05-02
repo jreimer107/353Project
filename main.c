@@ -104,12 +104,12 @@ void initialize_hardware(void) {
 	
 
 	
-	pwm_timer_config(TIMER1_BASE, 1, 20);
-
+	pwm_timer_config(TIMER1_BASE, 1, 1000);
 	gpio_config_enable_output(GPIOF_BASE,PF2);
 	gpio_config_alternate_function(GPIOF_BASE, PF2);
-	//FIX ME
-	//gpio_config_port_control(GPIOF_BASE,PF2,);
+
+	gpio_config_port_control(GPIOF_BASE,PF2,GPIO_PCTL_PF2_T1CCP0);
+	
 	
 }
 
@@ -163,7 +163,7 @@ int main(void) {
     myadc = (ADC0_Type*)ADC0_BASE;
     portf = (GPIOA_Type*)GPIOF_BASE;
     initialize_hardware();
-    gp_timer_start_16(TIMER0_BASE, 7, 1, TICKS, TICKS);
+    gp_timer_start_16(TIMER0_BASE, 7, 5, TICKS, TICKS);
 
     put_string("\n\r");
     put_string("************************************\n\r");
@@ -191,12 +191,14 @@ int main(void) {
 			}
 			GPIOF -> DATA = gp_timer2 -> TAV;
       if (TimerA_Done) {
-            update_red_led();
+            //update_red_led();
             TimerA_Done = false;
         }
 
         if (TimerB_Done) {
-            update_green_led();
+            //update_green_led();
+						debounce_reset();
+					
             get_ps2_value(ADC0_BASE);
 						killed = update_actors();
 						if (killed == 0xFF) break;
@@ -233,6 +235,7 @@ int main(void) {
 		lcd_print_stringXY(game_over_message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
 		sprintf(game_over_message,"Your Score: %d",wave);
 		lcd_print_stringXY(game_over_message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+		while(1){}
 }
 
 //FSM that toggles the red led every 5Hz
@@ -292,6 +295,20 @@ void debounce_buttons(void) {
 			button_count = (button_count + 1) % TEAR_RATE; 
 		}
 }
+
+void debounce_reset(void) {
+	static uint8_t button_count;
+	
+	if (lp_io_read_pin(SW1_BIT)) {
+		if (button_count == 3) {
+			eeprom_byte_write(I2C1_BASE,256,0);
+		}
+		button_count = (button_count + 1) % 4;
+	}
+	else button_count = 0;
+}
+
+
 
 bool fire_on_press(void) {
     //If the direction isn't null-null we need to spawn a tear going in that direction

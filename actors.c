@@ -59,24 +59,9 @@ uint8_t update_actors() {
 bool update_hero(actor_t *hero) {
 	lr_t edge_lr = at_edge_lr(hero);
 	ud_t edge_ud = at_edge_ud(hero);
-	char message[20];
-	uint8_t high_score;
 
 
 	if (hero->health <= 0){
-		/*
-		lcd_clear_screen(LCD_COLOR_BLACK);
-		eeprom_byte_read(I2C1_BASE,256,&high_score);
-		if(wave > high_score){
-			eeprom_byte_write(I2C1_BASE,256,wave);
-			high_score = wave;
-		}
-		sprintf(message,"High Score: %d",high_score);
-		lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
-		sprintf(message,"Your Score: %d",wave);
-		lcd_print_stringXY(message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
-		//while(1) {}
-		*/
 		return true;
 	}
 

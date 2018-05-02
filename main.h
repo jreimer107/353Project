@@ -76,6 +76,7 @@ void update_red_led(void);
 void update_green_led(void);
 void update_hero_dir(void);
 void debounce_buttons(void);
+void debounce_reset(void);
 bool fire_on_press(void);
 void draw(void);
 void spawn(void);
