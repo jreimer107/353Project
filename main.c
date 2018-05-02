@@ -149,6 +149,9 @@ void GPIOF_Handler(void) {
 int main(void) {
     //Initialize hero location, timer, and adc.
 		char message[40];
+		char game_over_message[20];
+		uint8_t high_score;
+		uint8_t killed;
 		uint8_t prev_wave = 0;
 		uint8_t prev_health = 0;
 		DisableInterrupts();
@@ -178,14 +181,16 @@ int main(void) {
 		spawn();
     while (1) {
 			
+			//draw_actors();
 			if(wave != prev_wave || prev_health != hero->health){
-			prev_wave = wave;
-			prev_health = hero->health;
-			sprintf(message,"Score: %d Health: %d",wave,hero->health);
-			lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
-		}
+				//lcd_draw_image(actors->x_loc, actors->width, actors->y_loc, actors->height, actors->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+				prev_wave = wave;
+				prev_health = hero->health;
+				sprintf(message,"Score: %d Health: %d",wave,hero->health);
+				lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+			}
 			GPIOF -> DATA = gp_timer2 -> TAV;
-        if (TimerA_Done) {
+      if (TimerA_Done) {
             update_red_led();
             TimerA_Done = false;
         }
@@ -193,7 +198,10 @@ int main(void) {
         if (TimerB_Done) {
             update_green_led();
             get_ps2_value(ADC0_BASE);
-            update_game(update_actors());
+						killed = update_actors();
+						if (killed == 0xFF) break;
+						update_game(killed);
+            //update_game(update_actors());
             //Shoot tears
             if (poll_button) {
                 mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
@@ -215,6 +223,16 @@ int main(void) {
 
         draw_actors();
     }
+		lcd_clear_screen(LCD_COLOR_BLACK);
+		eeprom_byte_read(I2C1_BASE,256,&high_score);
+		if(wave > high_score){
+			eeprom_byte_write(I2C1_BASE,256,wave);
+			high_score = wave;
+		}
+		sprintf(game_over_message,"High Score: %d",high_score);
+		lcd_print_stringXY(game_over_message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+		sprintf(game_over_message,"Your Score: %d",wave);
+		lcd_print_stringXY(game_over_message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
 }
 
 //FSM that toggles the red led every 5Hz
