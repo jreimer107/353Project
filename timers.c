@@ -287,10 +287,9 @@ bool gp_timer_start_16(uint32_t base_addr, uint8_t prescalarA, uint8_t prescalar
 	return true;
 }
 
-bool pwm_timer_config(uint32_t base_addr, uint8_t prescalar, uint32_t frequency){
+bool pwm_timer_config(uint32_t base_addr){
 	uint32_t timer_rcgc_mask;
   uint32_t timer_pr_mask;
-	uint32_t load = 50000000 / frequency;
   TIMER0_Type *gp_timer2;
 	
 	if(!verify_base_addr(base_addr)) return false;
@@ -319,14 +318,27 @@ bool pwm_timer_config(uint32_t base_addr, uint8_t prescalar, uint32_t frequency)
 	
 	gp_timer2 -> CTL &= ~TIMER_CTL_TAPWML;
 		
-	gp_timer2 -> TAPR = load >> 16;
-		
-	gp_timer2 -> TAILR = load & 0xFFFF;
-		
-	gp_timer2 -> TAMATCHR = load/2;//MAKE THIS EQUAL TO 50%
 		
 	//Reenable
 	gp_timer2 -> CTL |= (TIMER_CTL_TAEN);
 	return true;
 	
+}
+
+
+
+bool play_freq(uint32_t base_addr, uint32_t frequency) {
+	TIMER0_Type *gp_timer2;
+	uint32_t load = 50000000 / frequency;
+	if(!verify_base_addr(base_addr)) return false;
+	gp_timer2 = (TIMER0_Type*)base_addr;
+	gp_timer2 -> CTL &= ~(TIMER_CTL_TAEN | TIMER_CTL_TBEN);
+	
+	gp_timer2 -> TAPR = load >> 16;
+	gp_timer2 -> TAILR = load & 0xFFFF;
+	gp_timer2->TAMATCHR = load / 2;
+	gp_timer2 -> CTL |= (TIMER_CTL_TAEN | TIMER_CTL_TBEN);
+	
+	
+	return true;
 }

@@ -8,7 +8,6 @@
 
 //Look at the schematic for reasoning.
 #define MCP24LC32AT_DEV_ID			0x27
-#define EEPROM_TEST_NUM_BYTES    20
 
 //*****************************************************************************
 // Fill out the #defines below to configure which pins are connected to

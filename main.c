@@ -104,7 +104,7 @@ void initialize_hardware(void) {
 	
 
 	
-	pwm_timer_config(TIMER1_BASE, 1, 1000);
+	pwm_timer_config(TIMER1_BASE);
 	gpio_config_enable_output(GPIOF_BASE,PF2);
 	gpio_config_alternate_function(GPIOF_BASE, PF2);
 
@@ -179,7 +179,10 @@ int main(void) {
     //Main loop
 		spawn();
 		spawn();
+		//play_freq(TIMER1_BASE, 2000);
     while (1) {
+			
+			
 			
 			//draw_actors();
 			if(wave != prev_wave || prev_health != hero->health){
@@ -275,9 +278,12 @@ void update_green_led(void) {
 //UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3
 //Tears will keep firing as long as buttons are held.
 void debounce_buttons(void) {
-    static uint8_t button_count;
+    static uint8_t button_count = 0;
 	
 		if (buttons_current != 0xFF) {
+			if (button_count == TEAR_RATE - 4) play_freq(TIMER1_BASE, 1000);
+			else if (button_count == TEAR_RATE - 3) play_freq(TIMER1_BASE, 500);
+			else if (button_count == TEAR_RATE - 2) play_freq(TIMER1_BASE, 400);
 			if (button_count >= TEAR_RATE - 1) {
 				if (~buttons_current & 0x01) { //UP
 					hero->ud = UP_d;
@@ -291,9 +297,11 @@ void debounce_buttons(void) {
 				else if (~buttons_current & 0x08) { //RIGHT
 					hero->lr = RIGHT_d;
 				}
+				play_freq(TIMER1_BASE, 0);
 			}
 			button_count = (button_count + 1) % TEAR_RATE; 
 		}
+		else play_freq(TIMER1_BASE, 0);
 }
 
 void debounce_reset(void) {

@@ -67,6 +67,7 @@ bool gp_timer_config_16(uint32_t base_addr, uint32_t mode, bool count_up, bool e
 //*****************************************************************************
 bool gp_timer_start_16(uint32_t base_addr, uint8_t prescalerA_value, uint8_t prescalerB_value, uint16_t ILRA_value, uint16_t ILRB_value);
 
-bool pwm_timer_config(uint32_t base_addr, uint8_t prescalar, uint32_t load);
+bool pwm_timer_config(uint32_t base_addr);
+bool play_freq(uint32_t base_addr, uint32_t frequency);
 
 #endif
