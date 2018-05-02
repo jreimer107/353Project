@@ -39,19 +39,7 @@
 #include "ece353_hw2_fonts.h"
 #include "music.h"
 
-//#define TICKS 62500
-//#define LED_CYCLE 20
-
-#define WAVE1 3
-#define WAVE2 6
-#define WAVE3 10
-#define WAVE4 15
-#define WAVE5 22
-#define WAVE6 30
-#define WAVE7 40 
-#define WAVE8 55
-#define WAVE9 75
-#define WAVE10	100
+#define WAVE_SIZE 3
 
 #define DOWN_THRESHOLD	0x400
 #define UP_THRESHOLD	0xC00
@@ -60,6 +48,30 @@
 
 #define SPAWN_DELAY 10
 #define WAVE_DELAY 50
+
+
+#define NUM_SIDES 		4
+#define SPAWN_SIZE 		40
+#define NUM_X_SPOTS 	COLS / SPAWN_SIZE
+#define NUM_Y_SPOTS		ROWS / SPAWN_SIZE - 1
+#define FIRST_X 		SPAWN_SIZE / 2
+#define LAST_X			FIRST_X + (NUM_X_SPOTS - 1) * SPAWN_SIZE
+#define FIRST_Y			SPAWN_SIZE
+#define LAST_Y			FIRST_Y + (NUM_Y_SPOTS - 1) * SPAWN_SIZE
+#define TOP		1
+#define BOTTOM	3
+#define LEFT	2
+#define RIGHT	4
+
+#define BUTTON_M		0xFF
+#define UP_BUTTON		0x01
+#define DOWN_BUTTON		0x02
+#define LEFT_BUTTON		0x04
+#define RIGHT_BUTTON	0x08
+
+#define HIGHSCORE_ADDR 	256
+#define ADC_M			0x0FFF
+#define GAME_OVER		0xFF
 
 
 

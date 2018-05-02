@@ -7,6 +7,7 @@
 #include "images.h"
 #include "lcd.h"
 #include "eeprom.h"
+#include "music.h"
 
 #define HERO 0
 #define TEAR 1
@@ -14,6 +15,10 @@
 #define BAT 3
 #define SLIME 4
 #define MIMIC 5
+
+#define NUM_TYPES		6
+#define NUM_ENEMY_TYPES 4
+#define ENEMY_OFFSET 	NUM_TYPES - NUM_ENEMY_TYPES
 
 #define PLAYER_HEALTH 3
 #define ZOMBIE_HEALTH 3
@@ -27,7 +32,7 @@
 #define TEAR_SPEED 		1
 #define ZOMBIE_SPEED 	2
 #define BAT_SPEED 		2
-#define SLIME_SPEED 	3
+#define SLIME_SPEED 	1
 #define MIMIC_SPEED 	1
 
 //Colors
@@ -49,9 +54,10 @@
 //Enemy constants
 #define PREFERENCE_MAX 20
 #define PREFERENCE_CUTOFF PREFERENCE_MAX / 2
-#define SLIME_COUNT 50
+#define SLIME_COUNT 100
 #define HOP_THRESHOLD 0x7F
 
+#define UDLR_SIZE 3
 typedef enum {IDLE_lr, RIGHT_d, LEFT_d} lr_t;
 typedef enum {IDLE_ud, UP_d, DOWN_d} ud_t;
 

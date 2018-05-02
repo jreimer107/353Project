@@ -350,7 +350,7 @@ bool pwm_timer_config(uint32_t base_addr){
 
 
 
-bool play_freq(uint32_t base_addr, uint32_t frequency, uint16_t duration) {
+bool play_freq(uint32_t base_addr, uint32_t frequency, uint32_t duration) {
 	TIMER0_Type *music_timer;
 	uint32_t load = 50000000 / frequency;
 	if(!verify_base_addr(base_addr)) return false;
@@ -375,7 +375,7 @@ bool play_freq(uint32_t base_addr, uint32_t frequency, uint16_t duration) {
 	//music_timer->TBPR = 199;
 	//music_timer->TBILR = 5000;
 	//Load timer b with duration
-	music_timer->TBPR = 15;//duration << 3; //Dur * 8
+	music_timer->TBPR = 15*duration;//duration << 3; //Dur * 8
 
 	//Clear interrupts
 	music_timer->ICR |= TIMER_ICR_TATOCINT | TIMER_ICR_TBTOCINT;

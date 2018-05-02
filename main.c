@@ -39,9 +39,6 @@ bool tear_fired;
 
 uint8_t wave = 0;
 
-const uint8_t num_enemies[] = {WAVE1, WAVE2, WAVE3, WAVE4, WAVE5, WAVE5, WAVE6, WAVE7, WAVE8, WAVE9, WAVE10};
-
-
 //*****************************************************************************
 // 
 //*****************************************************************************
@@ -172,8 +169,7 @@ int main(void) {
 
     //Main loop
 	spawn();
-	spawn();
-	
+	play_sequence(3);
     while (1) {
 		if(wave != prev_wave || prev_health != hero->health){
 			prev_wave = wave;
@@ -191,7 +187,7 @@ int main(void) {
 			debounce_reset();
             get_ps2_value(ADC0_BASE);
 			killed = update_actors();
-			if (killed == 0xFF) break;
+			if (killed == GAME_OVER) break;
 			update_game(killed);
             //Shoot tears
             if (poll_button) {
@@ -206,16 +202,16 @@ int main(void) {
 
         if (ADC_Done) {
             //Read new adc values
-            ps2_x = myadc->SSFIFO2 & 0x0FFF;
-            ps2_y = myadc->SSFIFO2 & 0x0FFF;
+            ps2_x = myadc->SSFIFO2 & ADC_M;
+            ps2_y = myadc->SSFIFO2 & ADC_M;
             ADC_Done = false;
         }
-		draw_actors();
+		//draw_actors();
     }
 	lcd_clear_screen(LCD_COLOR_BLACK);
-	eeprom_byte_read(I2C1_BASE, 256, &high_score);
+	eeprom_byte_read(I2C1_BASE, HIGHSCORE_ADDR, &high_score);
 	if (wave > high_score) {
-		eeprom_byte_write(I2C1_BASE, 256, wave);
+		eeprom_byte_write(I2C1_BASE, HIGHSCORE_ADDR, wave);
 		high_score = wave;
 	}
 	sprintf(message,"High Score: %d",high_score);
@@ -230,21 +226,21 @@ int main(void) {
 void debounce_buttons(void) {
     static uint8_t button_count = 0;
 	
-		if (buttons_current != 0xFF) {
+		if (buttons_current != BUTTON_M) {
 			//if (button_count == TEAR_RATE - 4) play_freq(TIMER1_BASE, 1000);
 			//else if (button_count == TEAR_RATE - 3) play_freq(TIMER1_BASE, 500);
 			//else if (button_count == TEAR_RATE - 2) play_freq(TIMER1_BASE, 400);
 			if (button_count >= TEAR_RATE - 1) {
-				if (~buttons_current & 0x01) { //UP
+				if (~buttons_current & UP_BUTTON) { //UP
 					hero->ud = UP_d;
 				}
-				else if (~buttons_current & 0x02) { //DOWN
+				else if (~buttons_current & DOWN_BUTTON) { //DOWN
 					hero->ud = DOWN_d;
 				}
-				if (~buttons_current & 0x04) { //LEFT
+				if (~buttons_current & LEFT_BUTTON) { //LEFT
 					hero->lr = LEFT_d;
 				}
-				else if (~buttons_current & 0x08) { //RIGHT
+				else if (~buttons_current & RIGHT_BUTTON) { //RIGHT
 					hero->lr = RIGHT_d;
 				}
 				//play_freq(TIMER1_BASE, 0);
@@ -292,8 +288,6 @@ void update_game(uint8_t killed) {
 
 	if ((dead % 4) == 0){
 		spawn();
-		spawn();
-		spawn();
 		dead = 1;
 		//spawned = 0;
 		wave++; //for high score
@@ -324,28 +318,37 @@ void update_game(uint8_t killed) {
 }
 
 void spawn() {
-    //top = 0, bottom = 1, left = 2, right = 3
     uint16_t x, y;
-    uint8_t side, spot, type;
+	uint8_t prev_spots[NUM_SIDES];
+    uint8_t i, side, spot, type;
     lr_t lr;
     ud_t ud;
 
-    lr = rand() % 3;
-    ud = rand() % 3;
-    type = rand() % 4 + 2;
+	for (i = 0; i < WAVE_SIZE; i++) {
+		lr = rand() % UDLR_SIZE;
+		ud = rand() % UDLR_SIZE;
+		type = rand() % NUM_ENEMY_TYPES + ENEMY_OFFSET;
+		side = rand() % NUM_SIDES;
+		
+		if (side % 2) {
+			do {
+				spot = rand() % NUM_X_SPOTS;
+			} while(spot == prev_spots[0] || spot == prev_spots[1]);
+			x = FIRST_X + SPAWN_SIZE * spot;
+			if (side == TOP) y = FIRST_Y; //top
+			else y = LAST_Y; //bottom
+		}	 
+		else {
+			do {
+				spot = rand() % NUM_Y_SPOTS;
+			} while(spot == prev_spots[2] || spot == prev_spots[3]);
+			y = FIRST_Y + SPAWN_SIZE * spot;
+			if (side == LEFT) x = FIRST_X; //left
+			else x = LAST_X; //right
+		}
+		create_actor(type, x, y, lr, ud);
+	}
 
-    side = rand() % 4;
-    if (side < 2) {
-        spot = rand() % 6;
-        x = 20 + 40 * spot;
-        if (side == 0) y = 40; //top
-        else y = 300; //bottom
-    } 
-	else {
-        spot = rand() % 8;
-        y = 20 + 40 * spot;
-        if (side == 2) x = 20; //left
-        else x = 220; //right
-    }
-    create_actor(type, x, y, lr, ud);
+
+
 }
