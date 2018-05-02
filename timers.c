@@ -307,36 +307,67 @@ bool pwm_timer_config(uint32_t base_addr){
 	gp_timer2 = (TIMER0_Type*)base_addr;
 	
 	gp_timer2 -> CTL &= ~(TIMER_CTL_TAEN | TIMER_CTL_TBEN);
-	
 	gp_timer2 -> CFG = TIMER_CFG_16_BIT;
 	
 	gp_timer2 -> TAMR |= TIMER_TAMR_TAAMS;
-	
 	gp_timer2 -> TAMR &= ~TIMER_TAMR_TACMR;
-		
 	gp_timer2 -> TAMR |= TIMER_TAMR_TAMR_PERIOD;
 	
+
+	gp_timer2 -> TBMR &= ~TIMER_TBMR_TBMR_M;
+	gp_timer2 -> TBMR |= TIMER_TBMR_TBMR_PERIOD;
+		
+	//Set count up/down and prescalar
+	gp_timer2 -> TBMR &= ~TIMER_TBMR_TBCDIR;
+
+	
+	//Timer needs to be set in order of 10ms.
+	//that's 100 interrupts per second.
+	//TBPR has max of 65536
+	//Set to TICKS (62500)
+	//50Mhz / 100 / 62500 = 8
+	//Need to scale duration by 8.
+	gp_timer2 -> TBPR = TICKS;
+	
+	//Enable/disable interrupts
+	gp_timer2 -> IMR &= ~TIMER_IMR_TATOIM;
+	gp_timer2 -> IMR |= TIMER_IMR_TBTOIM;
+	NVIC_SetPriority(TIMER1B_IRQn, 0);
+	NVIC_EnableIRQ(TIMER1B_IRQn);
+
+
 	gp_timer2 -> CTL &= ~TIMER_CTL_TAPWML;
 		
 		
 	//Reenable
-	gp_timer2 -> CTL |= (TIMER_CTL_TAEN);
+	gp_timer2 -> CTL |= (TIMER_CTL_TAEN | TIMER_CTL_TBEN);
 	return true;
 	
 }
 
 
 
-bool play_freq(uint32_t base_addr, uint32_t frequency) {
+bool play_freq(uint32_t base_addr, uint32_t frequency, uint16_t duration) {
 	TIMER0_Type *gp_timer2;
 	uint32_t load = 50000000 / frequency;
 	if(!verify_base_addr(base_addr)) return false;
 	gp_timer2 = (TIMER0_Type*)base_addr;
+
+	//Disable
 	gp_timer2 -> CTL &= ~(TIMER_CTL_TAEN | TIMER_CTL_TBEN);
 	
+	//Load timer a with frequency
 	gp_timer2 -> TAPR = load >> 16;
 	gp_timer2 -> TAILR = load & 0xFFFF;
 	gp_timer2->TAMATCHR = load / 2;
+
+	//Load timer b with duration
+	gp_timer2->TBILR = duration << 3; //Dur * 8
+
+	//Clear interrupts
+	gp_timer->ICR |= TIMER_ICR_TBTOCINT;
+
+	//Reenable
 	gp_timer2 -> CTL |= (TIMER_CTL_TAEN | TIMER_CTL_TBEN);
 	
 	

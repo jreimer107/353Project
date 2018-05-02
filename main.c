@@ -95,7 +95,7 @@ void initialize_hardware(void) {
 	gpio_config_enable_input(GPIOF_BASE, PF0);
 	gpio_config_falling_edge_irq(GPIOF_BASE, PF0);
 	NVIC_SetPriority(GPIOF_IRQn, 0);
-  NVIC_EnableIRQ(GPIOF_IRQn);
+  	NVIC_EnableIRQ(GPIOF_IRQn);
 	portf->ICR |= GPIO_ICR_GPIO_M;
 	//Initialize port expander
 	if(mcp_init() == false){
@@ -148,15 +148,14 @@ void GPIOF_Handler(void) {
 //*****************************************************************************
 int main(void) {
     //Initialize hero location, timer, and adc.
-		char message[40];
-		char game_over_message[20];
-		uint8_t high_score;
-		uint8_t killed;
-		uint8_t prev_wave = 0;
-		uint8_t prev_health = 0;
-		DisableInterrupts();
-		init_serial_debug(true, true);
-		EnableInterrupts();
+	char game_over_message[20];
+	uint8_t high_score;
+	uint8_t killed;
+	uint8_t prev_wave = 0;
+	uint8_t prev_health = 0;
+	DisableInterrupts();
+	init_serial_debug(true, true);
+	EnableInterrupts();
     hero_init();
     hero = actors;
     gp_timer = (TIMER0_Type*)TIMER0_BASE;
@@ -165,52 +164,31 @@ int main(void) {
     initialize_hardware();
     gp_timer_start_16(TIMER0_BASE, 7, 5, TICKS, TICKS);
 
-    put_string("\n\r");
-    put_string("************************************\n\r");
-    put_string("ECE353 - Spring 2018 HW3\n\r  ");
-    put_string(group);
-    put_string("\n\r     Name:");
-    put_string(individual_1);
-    put_string("\n\r     Name:");
-    put_string(individual_2);
-    put_string("\n\r");
-    put_string("************************************\n\r");
-
     //Main loop
-		spawn();
-		spawn();
-		//play_freq(TIMER1_BASE, 2000);
+	spawn();
+	spawn();
     while (1) {
-			
-			
-			
-			//draw_actors();
-			if(wave != prev_wave || prev_health != hero->health){
-				//lcd_draw_image(actors->x_loc, actors->width, actors->y_loc, actors->height, actors->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
-				prev_wave = wave;
-				prev_health = hero->health;
-				sprintf(message,"Score: %d Health: %d",wave,hero->health);
-				lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
-			}
-			GPIOF -> DATA = gp_timer2 -> TAV;
-      if (TimerA_Done) {
-            //update_red_led();
+		if(wave != prev_wave || prev_health != hero->health){
+			prev_wave = wave;
+			prev_health = hero->health;
+			sprintf(message,"Score: %d Health: %d",wave,hero->health);
+			lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+		}
+		GPIOF -> DATA = gp_timer2 -> TAV;
+      	
+		if (TimerA_Done) {
             TimerA_Done = false;
         }
 
         if (TimerB_Done) {
-            //update_green_led();
-						debounce_reset();
-					
+			debounce_reset();
             get_ps2_value(ADC0_BASE);
-						killed = update_actors();
-						if (killed == 0xFF) break;
-						update_game(killed);
-            //update_game(update_actors());
+			killed = update_actors();
+			if (killed == 0xFF) break;
+			update_game(killed);
             //Shoot tears
             if (poll_button) {
                 mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
-								//printf("%d ", buttons_current);
                 debounce_buttons();
                 tear_fired = fire_on_press();
                 if (tear_fired) poll_button = TEAR_RATE;
@@ -225,54 +203,18 @@ int main(void) {
             ps2_y = myadc->SSFIFO2 & 0x0FFF;
             ADC_Done = false;
         }
-
-        draw_actors();
     }
-		lcd_clear_screen(LCD_COLOR_BLACK);
-		eeprom_byte_read(I2C1_BASE,256,&high_score);
-		if(wave > high_score){
-			eeprom_byte_write(I2C1_BASE,256,wave);
-			high_score = wave;
-		}
-		sprintf(game_over_message,"High Score: %d",high_score);
-		lcd_print_stringXY(game_over_message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
-		sprintf(game_over_message,"Your Score: %d",wave);
-		lcd_print_stringXY(game_over_message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
-		while(1){}
-}
-
-//FSM that toggles the red led every 5Hz
-void update_red_led(void) {
-    static uint8_t countA = 0;
-    static bool stateA = false;
-    if (!countA) {
-        if (stateA) {
-            lp_io_clear_pin(RED_BIT);
-            stateA = false;
-        } 
-		else {
-            lp_io_set_pin(RED_BIT);
-            stateA = true;
-        }
-    }
-    countA = (countA + 1) % LED_CYCLE;
-}
-
-//FSM that toggles the green led every 2.5Hz.
-void update_green_led(void) {
-    static bool stateB = false;
-    static uint8_t countB = 0;
-    if (!countB) {
-        if (stateB) {
-            lp_io_clear_pin(GREEN_BIT);
-            stateB = false;
-        } 
-		else {
-            lp_io_set_pin(GREEN_BIT);
-            stateB = true;
-        }
-    }
-    countB = (countB + 1) % LED_CYCLE;
+	lcd_clear_screen(LCD_COLOR_BLACK);
+	eeprom_byte_read(I2C1_BASE, 256, &high_score);
+	if (wave > high_score) {
+		eeprom_byte_write(I2C1_BASE, 256, wave);
+		high_score = wave;
+	}
+	sprintf(game_over_message,"High Score: %d",high_score);
+	lcd_print_stringXY(game_over_message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+	sprintf(game_over_message,"Your Score: %d",wave);
+	lcd_print_stringXY(game_over_message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+	while(1){}
 }
 
 //UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3

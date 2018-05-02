@@ -36,7 +36,6 @@ uint8_t update_actors() {
 
 		//Remove actor from list if dead
 		if (kill) {
-			destroy(curr_actor);	//unrender
 			if (prev_actor) {
 				prev_actor->next = curr_actor->next;
 			}
@@ -62,6 +61,7 @@ bool update_hero(actor_t *hero) {
 
 
 	if (hero->health <= 0){
+		lcd_draw_image(hero->x_loc, hero->width, hero->y_loc, hero->height, hero->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
 		return true;
 	}
 
@@ -100,6 +100,7 @@ bool update_hero(actor_t *hero) {
 			if (edge_ud != DOWN_d) hero->y_loc++;
 		}
 		hero->move_count = 0;
+		lcd_draw_image(hero->x_loc, hero->width, hero->y_loc, hero->height, hero->bitmap, hero->color, LCD_COLOR_BLACK);
 	}
 	else hero->move_count++;
 
@@ -115,6 +116,7 @@ bool update_tear(actor_t *tear) {
 	while(enemy) {
 		if (enemy->type != HERO && enemy->type != TEAR && detect_collision(tear, enemy)) {
 			enemy->health -= TEAR_DAMAGE;
+			lcd_draw_image(tear->x_loc, tear->width, tear->y_loc, tear->height, tear->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
 			return true;
 		}
 		enemy = enemy->next;
@@ -132,6 +134,7 @@ bool update_tear(actor_t *tear) {
 		if (tear->ud == UP_d) tear->y_loc--;
 		else if (tear->ud == DOWN_d) tear->y_loc++;
 		tear->move_count = 0;
+		lcd_draw_image(tear->x_loc, tear->width, tear->y_loc, tear->height, tear->bitmap, tear->color, LCD_COLOR_BLACK);
 	}
 	else tear->move_count++;
 
@@ -145,7 +148,10 @@ bool update_zombie(actor_t *zombie) {
 	actor_t *hero = actors; //Hero is head of actors list.
 
 	//If dead, return dead.
-	if (zombie->health <= 0) return true;
+	if (zombie->health <= 0) {
+		lcd_draw_image(zombie->x_loc, zombie->width, zombie->y_loc, zombie->height, zombie->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+		return true;
+	}
 	
 	//Move on speed interval
 	if (zombie->move_count == ZOMBIE_SPEED) {
@@ -158,6 +164,7 @@ bool update_zombie(actor_t *zombie) {
 			else if (zombie->y_loc < hero->y_loc) zombie->y_loc++;
 		}
 		zombie->move_count = 0;
+		lcd_draw_image(zombie->x_loc, zombie->width, zombie->y_loc, zombie->height, zombie->bitmap, zombie->color, LCD_COLOR_BLACK);
 	}
 	else zombie->move_count++;
 
@@ -171,7 +178,10 @@ bool update_bat(actor_t *bat) {
 	lr_t edge_lr = at_edge_lr(bat);
 	ud_t edge_ud = at_edge_ud(bat);
 
-	if (bat->health <= 0) return true;
+	if (bat->health <= 0) {
+		lcd_draw_image(bat->x_loc, bat->width, bat->y_loc, bat->height, bat->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+		return true;
+	}
 
 
 	//Detect if at edge of screen, switch movement direction
@@ -187,7 +197,8 @@ bool update_bat(actor_t *bat) {
 		if (bat->ud == UP_d) bat->y_loc--;
 		else if (bat->ud == DOWN_d) bat->y_loc++;
 		bat->move_count = 0;
-	}
+        lcd_draw_image(bat->x_loc, bat->width, bat->y_loc, bat->height, bat->bitmap, bat->color, LCD_COLOR_BLACK);
+    }
 	else bat->move_count++;
 
 	return false;
@@ -198,7 +209,11 @@ bool update_slime(actor_t *slime) {
 	lr_t edge_lr = at_edge_lr(slime);
 	ud_t edge_ud = at_edge_ud(slime);
 
-	if (slime->health <= 0) return true;
+	if (slime->health <= 0) {
+		lcd_draw_image(slime->x_loc, slime->width, slime->y_loc, slime->height, slime->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+		return true;
+	}
+
 
 	//Count reached, switch between moving and idle.
 	if (slime->count == SLIME_COUNT) {
@@ -231,6 +246,8 @@ bool update_slime(actor_t *slime) {
 		else if (slime->ud == UP_d && edge_ud != UP_d) slime->y_loc--;
 		else if (slime->ud == DOWN_d && edge_ud != DOWN_d) slime->y_loc++;
 		slime->move_count = 0;
+		lcd_draw_image(slime->x_loc, slime->width, slime->y_loc, slime->height, slime->bitmap, slime->color, LCD_COLOR_BLACK);
+		
 	}
 	else slime->move_count++;
 
@@ -242,7 +259,10 @@ bool update_mimic(actor_t *mimic) {
 	lr_t edge_lr = at_edge_lr(mimic);
 	ud_t edge_ud = at_edge_ud(mimic);
 	
-	if (mimic->health <= 0) return true;
+	if (mimic->health <= 0) {
+		lcd_draw_image(mimic->x_loc, mimic->width, mimic->y_loc, mimic->height, mimic->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+		return true;
+	}
 	
 	//move on speed interval
 	if (mimic->move_count >= MIMIC_SPEED) {
@@ -251,6 +271,7 @@ bool update_mimic(actor_t *mimic) {
 		if (ps2_y > UP_THRESHOLD && edge_ud != UP_d) mimic->y_loc--;
 		else if (ps2_y < DOWN_THRESHOLD && edge_ud != DOWN_d) mimic->y_loc++;
 		mimic->move_count = 0;
+		lcd_draw_image(mimic->x_loc, mimic->width, mimic->y_loc, mimic->height, mimic->bitmap, mimic->color, LCD_COLOR_BLACK);
 	}
 	else mimic->move_count++;
 	
@@ -356,35 +377,6 @@ bool detect_collision(actor_t *a, actor_t *b) {
 	else return true;
 }
 
-
-void destroy(actor_t *actor) {
-	lcd_draw_image(
-		actor->x_loc,	 // X Pos
-		actor->width,	  // Image Horizontal Width
-		actor->y_loc, // Y Pos
-		actor->height,	 // Image Vertical Height
-		actor->bitmap,	   // Image
-		LCD_COLOR_BLACK,  // Foreground Color
-		LCD_COLOR_BLACK	// Background Color
-	);
-}
-
-//Draws all actors.
-void draw_actors(void) {
-	actor_t *actor = actors;
-	while(actor) {
-		lcd_draw_image(
-			actor->x_loc,		 // X Pos
-			actor->width,		 // Image Horizontal Width
-			actor->y_loc,		 // Y Pos
-			actor->height,		 // Image Vertical Height
-			actor->bitmap, // Image
-			actor->color,	 // Foreground Color
-			LCD_COLOR_BLACK		 // Background Color
-		);
-		actor = actor->next;
-	}
-}
 
 void hero_init(void){
 	actor_t *hero;
