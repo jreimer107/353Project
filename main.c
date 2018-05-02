@@ -7,6 +7,9 @@
 #include "ps2.h"
 #include "timers.h"
 
+
+
+
 char group[] = "Group??";
 char individual_1[] = "John	Reimer";
 char individual_2[] = "Luke Richmond";
@@ -26,12 +29,15 @@ volatile bool TimerB_Done = false;
 volatile bool ADC_Done = false;
 volatile uint8_t poll_button = 0;
 TIMER0_Type* gp_timer;
+TIMER0_Type* gp_timer2;
 GPIOA_Type* portf;
 ADC0_Type* myadc;
 
 uint8_t buttons_current = 0;
 bool buttons_pressed[4] = {false, false, false, false};
 bool tear_fired;
+
+uint8_t wave = 0;
 
 const uint8_t num_enemies[] = {WAVE1, WAVE2, WAVE3, WAVE4, WAVE5, WAVE5, WAVE6, WAVE7, WAVE8, WAVE9, WAVE10};
 
@@ -85,7 +91,7 @@ void initialize_hardware(void) {
 	
 
 	gpio_enable_port(GPIOF_BASE);
-	gpio_config_digital_enable(GPIOF_BASE, PF0);
+	gpio_config_digital_enable(GPIOF_BASE, PF0 |PF2);
 	gpio_config_enable_input(GPIOF_BASE, PF0);
 	gpio_config_falling_edge_irq(GPIOF_BASE, PF0);
 	NVIC_SetPriority(GPIOF_IRQn, 0);
@@ -95,6 +101,15 @@ void initialize_hardware(void) {
 	if(mcp_init() == false){
 		while(1){}
 	}
+	
+
+	
+	pwm_timer_config(TIMER1_BASE, 1, 20);
+
+	gpio_config_enable_output(GPIOF_BASE,PF2);
+	gpio_config_alternate_function(GPIOF_BASE, PF2);
+	//FIX ME
+	//gpio_config_port_control(GPIOF_BASE,PF2,);
 	
 }
 
@@ -133,6 +148,9 @@ void GPIOF_Handler(void) {
 //*****************************************************************************
 int main(void) {
     //Initialize hero location, timer, and adc.
+		char message[40];
+		uint8_t prev_wave = 0;
+		uint8_t prev_health = 0;
 		DisableInterrupts();
 		init_serial_debug(true, true);
 		EnableInterrupts();
@@ -159,6 +177,14 @@ int main(void) {
 		spawn();
 		spawn();
     while (1) {
+			
+			if(wave != prev_wave || prev_health != hero->health){
+			prev_wave = wave;
+			prev_health = hero->health;
+			sprintf(message,"Score: %d Health: %d",wave,hero->health);
+			lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+		}
+			GPIOF -> DATA = gp_timer2 -> TAV;
         if (TimerA_Done) {
             update_red_led();
             TimerA_Done = false;
@@ -262,7 +288,6 @@ bool fire_on_press(void) {
 }
 
 void update_game(uint8_t killed) {
-    static uint8_t wave = 1;
     static uint8_t spawned = 0;
     static uint8_t dead = 0;
     static uint8_t spawn_wait = 0;
@@ -318,7 +343,7 @@ void spawn() {
     if (side < 2) {
         spot = rand() % 6;
         x = 20 + 40 * spot;
-        if (side == 0) y = 20; //top
+        if (side == 0) y = 40; //top
         else y = 300; //bottom
     } 
 	else {

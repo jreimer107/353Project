@@ -59,8 +59,22 @@ uint8_t update_actors() {
 bool update_hero(actor_t *hero) {
 	lr_t edge_lr = at_edge_lr(hero);
 	ud_t edge_ud = at_edge_ud(hero);
+	char message[20];
+	uint8_t high_score;
 
-	if (!hero->health) return true;
+	if (hero->health <= 0){
+		lcd_clear_screen(LCD_COLOR_BLACK);
+		eeprom_byte_read(I2C1_BASE,256,&high_score);
+		if(wave > high_score){
+			eeprom_byte_write(I2C1_BASE,256,wave);
+			high_score = wave;
+		}
+		sprintf(message,"High Score: %d",high_score);
+		lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+		sprintf(message,"Your Score: %d",wave);
+		lcd_print_stringXY(message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+		return true;
+	}
 
 	//Update collisions
 	if (!hero->count) { 
@@ -74,7 +88,13 @@ bool update_hero(actor_t *hero) {
 		}
 	}
 	//Invincibility count is active, do not check collisions
-	else hero->count--;
+	else{
+	hero->count--;
+	if(hero->color == STEVE_COLOR_HURT && hero->count%16 == 0){
+		hero->color = STEVE_COLOR;
+	}
+	else if(hero->count%16 == 0) hero->color = STEVE_COLOR_HURT;
+	}
 
 	//Move on speed interval
 	if (hero->move_count == PLAYER_SPEED) {
@@ -254,6 +274,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->bitmap = (uint8_t*)tearBitmap;
 		actor->height = TEAR_HEIGHT;
 		actor->width = TEAR_WIDTH;
+		actor->color = TEAR_COLOR;
 		actor->next = 0x0;
 	}
 	else if (type == ZOMBIE) {
@@ -261,6 +282,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = ZOMBIE_HEIGHT;
 		actor->width = ZOMBIE_WIDTH;
 		actor->health = ZOMBIE_HEALTH;
+		actor->color = ZOMBIE_COLOR;
 		actor->next = 0x0;
 	}
 	else if (type == BAT) {
@@ -268,6 +290,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = BAT_HEIGHT;
 		actor->width = BAT_WIDTH;
 		actor->health = BAT_HEALTH;
+		actor->color = BAT_COLOR;
 		actor->next = 0x0;	
 	}
 	else if (type == SLIME) {
@@ -275,6 +298,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = SLIME_HEIGHT;
 		actor->width = SLIME_WIDTH;
 		actor->health = SLIME_HEALTH;
+		actor->color = SLIME_COLOR;
 		actor->next = 0x0;	
 	}
 	else if (type == MIMIC) {
@@ -282,6 +306,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = MIMIC_HEIGHT;
 		actor->width = MIMIC_WIDTH;
 		actor->health = MIMIC_HEALTH;
+		actor->color = MIMIC_COLOR;
 		actor->next = 0x0;
 	}
 
@@ -315,7 +340,7 @@ lr_t at_edge_lr(actor_t *actor) {
 //returns DOWN if the actor is at the bottom edge of the screen
 //Else returns IDLE.
 ud_t at_edge_ud(actor_t *actor) {
-	if (actor->y_loc < actor->height / 2  + 1) return UP_d;
+	if (actor->y_loc < actor->height / 2  + 20) return UP_d;
 	if (actor->y_loc > ROWS - actor->height / 2 - 1) return DOWN_d;
 	return IDLE_ud;
 }
@@ -365,7 +390,7 @@ void draw_actors(void) {
 			actor->y_loc,		 // Y Pos
 			actor->height,		 // Image Vertical Height
 			actor->bitmap, // Image
-			LCD_COLOR_WHITE,	 // Foreground Color
+			actor->color,	 // Foreground Color
 			LCD_COLOR_BLACK		 // Background Color
 		);
 		actor = actor->next;
@@ -388,6 +413,7 @@ void hero_init(void){
 	hero->type = HERO;
 	hero->x_loc = COLS / 2;
 	hero->y_loc = ROWS /2;
+	hero->color = STEVE_COLOR;
 	hero->next = NULL;
 }
 

@@ -26,6 +26,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "TM4C123.h"
 #include "driver_defines.h"
@@ -34,6 +36,7 @@
 #include "validate.h"
 #include "i2c.h"
 #include "MCP23017.h"
+#include "ece353_hw2_fonts.h"
 
 #define TICKS 62500
 #define LED_CYCLE 20
@@ -77,6 +80,5 @@ bool fire_on_press(void);
 void draw(void);
 void spawn(void);
 void update_game(uint8_t killed);
-
 
 #endif

@@ -6,6 +6,7 @@
 #include "main.h"
 #include "images.h"
 #include "lcd.h"
+#include "eeprom.h"
 
 #define HERO 0
 #define TEAR 1
@@ -29,8 +30,18 @@
 #define SLIME_SPEED 	3
 #define MIMIC_SPEED 	1
 
+//Colors
+#define TEAR_COLOR LCD_COLOR_BLUE
+#define STEVE_COLOR LCD_COLOR_MAGENTA
+#define STEVE_COLOR_HURT LCD_COLOR_RED
+#define ZOMBIE_COLOR LCD_COLOR_GREEN2
+#define BAT_COLOR LCD_COLOR_ORANGE
+#define SLIME_COLOR LCD_COLOR_YELLOW
+#define MIMIC_COLOR LCD_COLOR_BROWN
+
+
 #define MAX_ACTORS	50
-#define HERO_INVINCIBILITY	50
+#define HERO_INVINCIBILITY	128
 #define TEAR_DAMAGE 1
 //Two Tear Rates needed
 #define TEAR_RATE 50
@@ -56,6 +67,7 @@ typedef struct actor_t {
 	uint8_t height;
 	uint8_t width;
 	uint8_t move_count;
+	uint16_t color;
 	struct actor_t *next;
 } actor_t;
 
@@ -69,6 +81,7 @@ bool update_mimic(actor_t*);
 void hero_init(void);
 void draw_actors(void);
 void destroy(actor_t*);
+extern uint8_t wave;
 
 lr_t at_edge_lr(actor_t*);
 ud_t at_edge_ud(actor_t*);
