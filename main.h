@@ -39,6 +39,9 @@
 #include "ece353_hw2_fonts.h"
 #include "music.h"
 
+///////////////////////////////
+// Declare any custom types //
+/////////////////////////////
 #define WAVE_SIZE 3
 
 #define MCP PF0
@@ -83,22 +86,38 @@
 
 extern void initialize_serial_debug(void);
 
-///////////////////////////////
-// Declare any custom types //
-/////////////////////////////
+
 
 
 //////////////////////////////
 // Function Prototype Next //
 ////////////////////////////
-void update_red_led(void);
-void update_green_led(void);
-void update_hero_dir(void);
+
+//Debounce button function, tests if button should be considered pressed
+//Parameters: None
+//Returns: None
 void debounce_buttons(void);
+
+//Used to reset the high score counter
+//Parameters: None
+//Returns: None
 void debounce_reset(void);
+
+//Responsible for creating tears
+//Parameters: None
+//Returns:
+//True if tear was fired
 bool fire_on_press(void);
-void draw(void);
+
+//Responsible for creating monsters when a new wave starts
+//Parameters: None
+//Returns: None
 void spawn(void);
+
+//Decides when new waves of enemies need to be spawned
+//Parameters:
+//killed (uint8_t)			Number of enemies killed this update
+//Returns: None
 void update_game(uint8_t killed);
 
 #endif

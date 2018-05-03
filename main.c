@@ -10,7 +10,7 @@
 
 
 
-char group[] = "Group??";
+char group[] = "Group23";
 char individual_1[] = "John	Reimer";
 char individual_2[] = "Luke Richmond";
 
@@ -28,8 +28,8 @@ volatile bool TimerA_Done = false;
 volatile bool TimerB_Done = false;
 volatile bool ADC_Done = false;
 volatile uint8_t poll_button = 0;
-TIMER0_Type* gp_timer;
-TIMER0_Type* gp_timer2;
+TIMER0_Type* game_timer;
+TIMER0_Type* sound_timer;
 GPIOA_Type* portf;
 ADC0_Type* myadc;
 
@@ -70,7 +70,7 @@ void initialize_hardware(void) {
 	lcd_clear_screen(LCD_COLOR_BLACK);
 	
 	//// setup the timers ////
-	gp_timer_config_16(TIMER0_BASE, TIMER_TAMR_TAMR_PERIOD, false, true);
+	game_timer_config_16(TIMER0_BASE, TIMER_TAMR_TAMR_PERIOD, false, true);
 	pwm_timer_config(TIMER1_BASE);
 	
 	//// Setup ADC to convert on PS2 joystick using SS2 and interrupts ////
@@ -79,7 +79,8 @@ void initialize_hardware(void) {
 	//Initialize EEPROM
 	eeprom_init();
 	
-
+	//Enables GPIO Port F for use with the port expander/buttons
+	//and PWM/sound
 	gpio_enable_port(GPIOF_BASE);
 	gpio_config_digital_enable(GPIOF_BASE, MCP | PWM | RESET);
 	gpio_config_enable_input(GPIOF_BASE, MCP | RESET);
@@ -89,34 +90,45 @@ void initialize_hardware(void) {
 	gpio_config_enable_pullup(GPIOF_BASE, RESET);
 	gpio_config_falling_edge_irq(GPIOF_BASE, MCP);
 	NVIC_SetPriority(GPIOF_IRQn, 0);
-  	NVIC_EnableIRQ(GPIOF_IRQn);
+  NVIC_EnableIRQ(GPIOF_IRQn);
 	portf->ICR |= GPIO_ICR_GPIO_M;
 	//Initialize port expander
 	if(mcp_init() == false){
 		while(1){}
 	}
-	
+	//Plays nothing to remove garbage data.
 	play_sequence(0);
 }
 
-
+//Handler for the game timer, sets a flag
+//Parameters: None
+//Returns: None
 void TIMER0B_Handler(void)
 {
     TimerB_Done = true;
-    gp_timer->ICR |= TIMER_ICR_TBTOCINT;
+    game_timer->ICR |= TIMER_ICR_TBTOCINT;
 }
 
+//Handler for the music timer, sets a flag
+//Parameters: None
+//Returns: None
 void TIMER1B_Handler(void) {
-	gp_timer2->ICR |= TIMER_ICR_TBTOCINT;
+	sound_timer->ICR |= TIMER_ICR_TBTOCINT;
 	next_in_sequence();
 }
 
+//Handler for ADC interrupts
+//Parameters: None
+//Returns: None
 void ADC0SS2_Handler(void)
 {
     ADC_Done = true;
     myadc->ISC = ADC_ISC_IN2; // Ack the conversion
 }
 
+//Handler for port expander button interrupts
+//Parameters: None
+//Returns: None
 void GPIOF_Handler(void) {
     poll_button = TEAR_RATE;
     //clear icr of gpiof
@@ -125,30 +137,48 @@ void GPIOF_Handler(void) {
     mcp_byte_read(I2C1_BASE, GPIOBMCP, &buttons_current);
 }
 
-//*****************************************************************************
-//*****************************************************************************
+//Calls all initializations before entering main game loop.
+//Parameters: None
+//Returns: End's in while loop
 int main(void) {
-    //Initialize hero location, timer, and adc.
+  //Initialize hero location, timer, and adc.
 	char message[20];
 	uint8_t high_score;
 	uint8_t killed;
 	uint8_t prev_wave = 0;
-	uint8_t prev_health = 0;
-	DisableInterrupts();
-	init_serial_debug(true, true);
-	EnableInterrupts();
+	uint8_t prev_health = 0;//used to prevent rerendering of score on the top of the screen
+	actor_t* curr_actor = ;//used for the free at end
+	actor_t* next_actor = ;/used for free at end
+	
+	//Required Putty Print
+  put_string("\n\r");
+  put_string("************************************\n\r");
+  put_string("ECE353 - Spring 2018 Project\n\r  ");
+  put_string(group);
+  put_string("\n\r     Name:");
+  put_string(individual_1);
+  put_string("\n\r     Name:");
+  put_string(individual_2);
+  put_string("\n\r");  
+  put_string("************************************\n\r");
+	
+		//Creates hero
     hero_init();
     hero = actors;
-    gp_timer = (TIMER0_Type*)TIMER0_BASE;
-	gp_timer2 = (TIMER0_Type*)TIMER1_BASE;
+    //Defines bases for drivers
+		game_timer = (TIMER0_Type*)TIMER0_BASE;
+		sound_timer = (TIMER0_Type*)TIMER1_BASE;
     myadc = (ADC0_Type*)ADC0_BASE;
     portf = (GPIOA_Type*)GPIOF_BASE;
     initialize_hardware();
-    gp_timer_start_16(TIMER0_BASE, 7, 5, TICKS, TICKS);
+		//Kicks off timer that controls game
+    game_timer_start_16(TIMER0_BASE, 7, 5, TICKS, TICKS);
 
-    //Main loop
-	spawn();
-	play_sequence(3);
+    //An intial wave of monsters spawns
+		spawn();
+		//Song starts
+		play_sequence(3);
+		//Main loop
     while (1) {
 		if(wave != prev_wave || prev_health != hero->health){
 			prev_wave = wave;
@@ -156,15 +186,13 @@ int main(void) {
 			sprintf(message,"Score: %d Health: %d",wave,hero->health);
 			lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
 		}
-		GPIOF -> DATA = gp_timer2 -> TAV;
-      	
-		if (TimerA_Done) {
-            TimerA_Done = false;
-        }
-
+		
+		//Unnecessary?
+		//GPIOF -> DATA = sound_timer -> TAV;
+			
         if (TimerB_Done) {
 			debounce_reset();
-            get_ps2_value(ADC0_BASE);
+      get_ps2_value(ADC0_BASE);
 			killed = update_actors();
 			if (killed == GAME_OVER) break;
 			update_game(killed);
@@ -185,30 +213,37 @@ int main(void) {
             ps2_y = myadc->SSFIFO2 & ADC_M;
             ADC_Done = false;
         }
-		//draw_actors();
+			
     }
+	//checks if a new high score has been achieved
 	lcd_clear_screen(LCD_COLOR_BLACK);
 	eeprom_byte_read(I2C1_BASE, HIGHSCORE_ADDR, &high_score);
 	if (wave > high_score) {
 		eeprom_byte_write(I2C1_BASE, HIGHSCORE_ADDR, wave);
 		high_score = wave;
 	}
+	//prints final screen to board
 	sprintf(message,"High Score: %d",high_score);
 	lcd_print_stringXY(message,0,0,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
 	sprintf(message,"Your Score: %d",wave);
 	lcd_print_stringXY(message,0,9,LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+	
+	//frees remaining actors
+	while(curr_actor != NULL){
+	next_actor = curr_actor->next;
+	free(curr_actor);
+	curr_actor = next_actor;
+	}
 	while(1){}
 }
 
-//UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3
-//Tears will keep firing as long as buttons are held.
+//Debounce button function, tests if button should be considered pressed
+//Parameters: None
+//Returns: None
 void debounce_buttons(void) {
     static uint8_t button_count = 0;
 	
 		if (buttons_current != BUTTON_M) {
-			//if (button_count == TEAR_RATE - 4) play_freq(TIMER1_BASE, 1000);
-			//else if (button_count == TEAR_RATE - 3) play_freq(TIMER1_BASE, 500);
-			//else if (button_count == TEAR_RATE - 2) play_freq(TIMER1_BASE, 400);
 			if (button_count >= TEAR_RATE - 1) {
 				if (~buttons_current & UP_BUTTON) { //UP
 					hero->ud = UP_d;
@@ -222,13 +257,14 @@ void debounce_buttons(void) {
 				else if (~buttons_current & RIGHT_BUTTON) { //RIGHT
 					hero->lr = RIGHT_d;
 				}
-				//play_freq(TIMER1_BASE, 0);
 			}
 			button_count = (button_count + 1) % TEAR_RATE; 
 		}
-		//else play_freq(TIMER1_BASE, 0);
 }
 
+//Used to reset the high score counter
+//Parameters: None
+//Returns: None
 void debounce_reset(void) {
 	static uint8_t button_count;
 	
@@ -242,12 +278,15 @@ void debounce_reset(void) {
 }
 
 
-
+//Responsible for creating tears
+//Parameters: None
+//Returns:
+//True if tear was fired
 bool fire_on_press(void) {
 	
     //If the direction isn't null-null we need to spawn a tear going in that direction
     if (!(hero->lr == IDLE_lr && hero->ud == IDLE_ud)) {
-        create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
+    create_actor(TEAR, hero->x_loc, hero->y_loc, hero->lr, hero->ud);
 		play_sequence(1);
 		hero->lr = IDLE_lr;
 		hero->ud = IDLE_ud;
@@ -257,46 +296,26 @@ bool fire_on_press(void) {
     return false;
 }
 
+//Decides when new waves of enemies need to be spawned
+//Parameters:
+//killed (uint8_t)			Number of enemies killed this update
+//Returns: None
 void update_game(uint8_t killed) {
-    static uint8_t spawned = 0;
-    static uint8_t dead = 0;
-    static uint8_t spawn_wait = 0;
-    static uint8_t wave_wait = 0;
+	static uint8_t dead = 0;
 
     dead += killed;
 
 	if ((dead % (WAVE_SIZE + 1)) == 0){
 		spawn();
 		dead = 1;
-		//spawned = 0;
 		wave++; //for high score
 	}
-	  
-	
-/*	
-    if (dead < num_enemies[0]) { //wave in progress
-        if (spawned < num_enemies[0]) {
-            if (spawn_wait >= SPAWN_DELAY && spawned - dead < MAX_ACTORS) {
-                spawn();
-                spawn_wait = 0;
-                spawned++;
-            } 
-						else spawn_wait++;
-        }
-    } 
-		else { //wave over
-        if (wave_wait < WAVE_DELAY) wave_wait++;
-        else {
-            wave_wait = 0;
-            wave++;
-            spawned = 0;
-            dead = 0;
-        }
-    }
-*/
 }
 
-void spawn() {
+//Responsible for creating monsters when a new wave starts
+//Parameters: None
+//Returns: None
+void spawn(void) {
     uint16_t x, y;
 	static uint16_t prev_x[WAVE_SIZE];
 	static uint16_t prev_y[WAVE_SIZE];
