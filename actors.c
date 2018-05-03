@@ -81,7 +81,7 @@ bool update_hero(actor_t *hero) {
 			if (enemy->type != TEAR && !hero->count && detect_collision(hero, enemy)) {
 				hero->count = HERO_INVINCIBILITY;
 				hero->health--;
-				play_sequence(4);
+				play_sequence(HURT_SOUND);
 			}
 			enemy = enemy->next;
 		}
@@ -169,7 +169,7 @@ bool update_zombie(actor_t *zombie) {
 	//If dead, return dead.
 	if (zombie->health <= 0) {
 		lcd_draw_image(zombie->x_loc, zombie->width, zombie->y_loc, zombie->height, zombie->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
-		play_sequence(2);
+		play_sequence(ENEMY_SOUND);
 		return true;
 	}
 	
@@ -205,7 +205,7 @@ bool update_bat(actor_t *bat) {
 	//Death sequence
 	if (bat->health <= 0) {
 		lcd_draw_image(bat->x_loc, bat->width, bat->y_loc, bat->height, bat->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
-		play_sequence(2);
+		play_sequence(ENEMY_SOUND);
 		return true;
 	}
 
@@ -240,7 +240,7 @@ bool update_slime(actor_t *slime) {
 
 	if (slime->health <= 0) {
 		lcd_draw_image(slime->x_loc, slime->width, slime->y_loc, slime->height, slime->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
-		play_sequence(2);
+		play_sequence(ENEMY_SOUND);
 		return true;
 	}
 
@@ -295,7 +295,7 @@ bool update_mimic(actor_t *mimic) {
 	//Death sequence
 	if (mimic->health <= 0) {
 		lcd_draw_image(mimic->x_loc, mimic->width, mimic->y_loc, mimic->height, mimic->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
-		play_sequence(2);
+		play_sequence(ENEMY_SOUND);
 		return true;
 	}
 	

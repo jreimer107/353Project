@@ -102,10 +102,10 @@ void next_in_sequence(void) {
 	}
 	//if an effect has ended the song is requeued
 	else {
-		currplaying = 3;
+		currplaying = SONG;
 		//song_place = (song_place + 1) % 8;	//UNCOMMENT FOR POSSIBLE SPACE INVADERS
 		curr_sound = song_place;
-		sequence_size = 8;
+		sequence_size = SONG_DURATION;
 	}
 	
 }
