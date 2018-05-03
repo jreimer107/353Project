@@ -34,7 +34,7 @@
 #define NOTHING 		0
 #define TEAR_SOUND	1
 #define ENEMY_SOUND	2
-#define HURT_SOND 	3
+#define HURT_SOUND 	3
 #define SONG				4
 
 //Sound effect durations

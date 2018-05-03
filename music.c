@@ -1,9 +1,10 @@
 #include "music.h"
 
-uint8_t curr_sound = 0;
-uint8_t sequence_size = 0;
-uint8_t currplaying = 0;
-uint8_t song_place = 0;
+//These are needed to preserve/update state of sound as sound is updated by interrupts
+uint8_t curr_sound = 0;			//Current note of sequence to play
+uint8_t sequence_size = 0;	//Size of seqeunce that is playing
+uint8_t currplaying = 0;		//Current sequence that is playing
+uint8_t song_place = 0;			//Needed to preserve place in song when other tones are playing
 
 
 //The following arrays are lists of frequencies and durations for
@@ -91,7 +92,7 @@ void next_in_sequence(void) {
 		}
 		else if (currplaying == SONG){
 			play_freq(TIMER1_BASE, song[curr_sound][0],song[curr_sound][1]);
-			song_place = (song_place + 1) % 8;
+			song_place = (song_place + 1) % 8;	//Song loops
 			curr_sound = (curr_sound + 1) % 8;
 		}
 		else if (currplaying == HURT_SOUND) {
@@ -99,7 +100,7 @@ void next_in_sequence(void) {
 			curr_sound++;
 		}		
 	}
-	//if an effect has ended the song is requeued in this else statement
+	//if an effect has ended the song is requeued
 	else {
 		currplaying = 3;
 		//song_place = (song_place + 1) % 8;	//UNCOMMENT FOR POSSIBLE SPACE INVADERS

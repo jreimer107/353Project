@@ -313,29 +313,21 @@ bool pwm_timer_config(uint32_t base_addr){
 		
 	music_timer = (TIMER0_Type*)base_addr;
 	
+	//Disable timers
 	music_timer -> CTL &= ~(TIMER_CTL_TAEN | TIMER_CTL_TBEN);
+		
+	//Set as 2 16 bit timers
 	music_timer -> CFG = TIMER_CFG_16_BIT;
-	
+		
+	//Configure timer A as a pwm
 	music_timer -> TAMR |= TIMER_TAMR_TAAMS;
 	music_timer -> TAMR &= ~TIMER_TAMR_TACMR;
 	music_timer -> TAMR |= TIMER_TAMR_TAMR_PERIOD;
 	
-
+	//Configure timer B as a periodic countdown timer
 	music_timer -> TBMR &= ~TIMER_TBMR_TBMR_M;
 	music_timer -> TBMR &= ~TIMER_TBMR_TBCDIR;
 	music_timer -> TBMR |= TIMER_TBMR_TBMR_PERIOD;
-		
-	//Set count up/down and prescalar
-	music_timer -> TBMR &= ~TIMER_TBMR_TBCDIR;
-
-	
-	//Timer needs to be set in order of 10ms.
-	//that's 100 interrupts per second.
-	//TBPR has max of 65536
-	//Set to TICKS (62500)
-	//50Mhz / 100 / 62500 = 8
-	//Need to scale duration by 8.
-	music_timer -> TBILR = TICKS;
 	
 	//Enable/disable interrupts
 	music_timer -> IMR &= ~TIMER_IMR_TATOIM;
@@ -349,8 +341,8 @@ bool pwm_timer_config(uint32_t base_addr){
 	//Clears any garbage interrupts that might exist.
 	music_timer->ICR |= TIMER_ICR_TATOCINT | TIMER_ICR_TBTOCINT;
 
+	//Start high, disable legacy mode
 	music_timer -> CTL &= ~TIMER_CTL_TAPWML;
-		
 		
 	//Reenable
 	music_timer -> CTL |= (TIMER_CTL_TAEN | TIMER_CTL_TBEN);
@@ -385,22 +377,17 @@ bool play_freq(uint32_t base_addr, uint32_t frequency, uint32_t duration) {
 	//Timer needs to be set in order of 10ms.
 	//that's 100 interrupts per second.
 	//TBPR has max of 65536
-	//Set to TICKS (62500)
-	//50Mhz / 100 / 62500 = 8
-	//Need to scale duration by 8.
+	//Set to TICKS (62500), exact timings can be set with TIME_SCALE
 	music_timer -> TBILR = TICKS;
 	
-	//music_timer->TBPR = 199;
-	//music_timer->TBILR = 5000;
 	//Load timer b with duration
-	music_timer->TBPR = 15*duration;//duration << 3; //Dur * 8
+	music_timer->TBPR = TIME_SCALE * duration;
 
 	//Clear interrupts
 	music_timer->ICR |= TIMER_ICR_TATOCINT | TIMER_ICR_TBTOCINT;
 
 	//Reenable
 	music_timer -> CTL |= (TIMER_CTL_TAEN | TIMER_CTL_TBEN); 
-	
 	
 	return true;
 }

@@ -6,12 +6,12 @@ extern uint16_t ps2_x, ps2_y;
 //Main update function. Calls helper functions based on actor type.
 //Helper functions must complete four tasks:
 //1. Update the position of the actor.
-//2. Update the actor's state based on any collisions.
+//2. Update the actor's state based on any collisions if need be.
 //3. Complete any type-specific actions.
 //4. Report the aliveness of the actor.
 //Parameters: None
 //Returns:
-//Number of enemies killed
+//Number of enemies killed in this update
 uint8_t update_actors() {
 	actor_t *curr_actor = actors;
 	actor_t *prev_actor = NULL;
@@ -43,14 +43,16 @@ uint8_t update_actors() {
 			if (prev_actor) {
 				prev_actor->next = curr_actor->next;
 			}
-			else {
-				return 0xFF;
-			}
+			//If first actor(Steve) is gone, need to signal game over
+			else return GAME_OVER; //Entire list freeing done in main
+			
+			//Free and disconnect dead actor
 			if (curr_actor->type != TEAR) killed++;
 			free(curr_actor);
 			curr_actor = prev_actor;
 		}
 
+		//Next actor
 		prev_actor = curr_actor;
 		curr_actor = curr_actor->next;
 	}
@@ -66,7 +68,7 @@ bool update_hero(actor_t *hero) {
 	lr_t edge_lr = at_edge_lr(hero);
 	ud_t edge_ud = at_edge_ud(hero);
 
-
+	//Check if dead, unrender
 	if (hero->health <= 0){
 		lcd_draw_image(hero->x_loc, hero->width, hero->y_loc, hero->height, hero->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
 		return true;
@@ -93,7 +95,7 @@ bool update_hero(actor_t *hero) {
 		else if(hero->count%16 == 0) hero->color = STEVE_COLOR_HURT;
 	}
 
-	//Move on speed interval
+	//Move and draw on speed interval
 	if (hero->move_count == PLAYER_SPEED) {
 		if (ps2_x > LEFT_THRESHOLD) {
 			if (edge_lr != LEFT_d) hero->x_loc--;
@@ -112,7 +114,7 @@ bool update_hero(actor_t *hero) {
 	}
 	else hero->move_count++;
 
-	//Report aliveness (false for alive)
+	//Report deadness
 	return false;
 }
 
@@ -134,13 +136,13 @@ bool update_tear(actor_t *tear) {
 		enemy = enemy->next;
 	}
 
-	//Check if off screen
+	//Check if off screen, kill + unrender if so
 	if (at_edge_lr(tear) != IDLE_lr || at_edge_ud(tear) != IDLE_ud) {
 		lcd_draw_image(tear->x_loc, tear->width, tear->y_loc, tear->height, tear->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
 		return true;
 	}
 	
-	//Update position
+	//Update position and render
 	if(tear->move_count == TEAR_SPEED) {
 		if (tear->lr == LEFT_d) tear->x_loc--;
 		else if (tear->lr == RIGHT_d) tear->x_loc++;
@@ -171,7 +173,7 @@ bool update_zombie(actor_t *zombie) {
 		return true;
 	}
 	
-	//Move on speed interval
+	//Move and render on speed interval
 	if (zombie->move_count == ZOMBIE_SPEED) {
 		if (direction_preference > PREFERENCE_CUTOFF) {
 			if (zombie->x_loc > hero->x_loc) zombie->x_loc--;
@@ -200,12 +202,12 @@ bool update_bat(actor_t *bat) {
 	lr_t edge_lr = at_edge_lr(bat);
 	ud_t edge_ud = at_edge_ud(bat);
 
+	//Death sequence
 	if (bat->health <= 0) {
 		lcd_draw_image(bat->x_loc, bat->width, bat->y_loc, bat->height, bat->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
 		play_sequence(2);
 		return true;
 	}
-
 
 	//Detect if at edge of screen, switch movement direction
 	if (edge_lr == LEFT_d) bat->lr = RIGHT_d;
@@ -241,7 +243,6 @@ bool update_slime(actor_t *slime) {
 		play_sequence(2);
 		return true;
 	}
-
 
 	//Count reached, switch between moving and idle.
 	if (slime->count == SLIME_COUNT) {
@@ -291,6 +292,7 @@ bool update_mimic(actor_t *mimic) {
 	lr_t edge_lr = at_edge_lr(mimic);
 	ud_t edge_ud = at_edge_ud(mimic);
 	
+	//Death sequence
 	if (mimic->health <= 0) {
 		lcd_draw_image(mimic->x_loc, mimic->width, mimic->y_loc, mimic->height, mimic->bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
 		play_sequence(2);
@@ -327,7 +329,6 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = TEAR_HEIGHT;
 		actor->width = TEAR_WIDTH;
 		actor->color = TEAR_COLOR;
-		actor->next = 0x0;
 	}
 	else if (type == ZOMBIE) {
 		actor->bitmap = (uint8_t*)zombieBitmap;
@@ -335,7 +336,6 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->width = ZOMBIE_WIDTH;
 		actor->health = ZOMBIE_HEALTH;
 		actor->color = ZOMBIE_COLOR;
-		actor->next = 0x0;
 	}
 	else if (type == BAT) {
 		if (lr == IDLE_lr && lr == IDLE_ud) ud = UP_d;
@@ -343,8 +343,7 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->height = BAT_HEIGHT;
 		actor->width = BAT_WIDTH;
 		actor->health = BAT_HEALTH;
-		actor->color = BAT_COLOR;
-		actor->next = 0x0;	
+		actor->color = BAT_COLOR;	
 	}
 	else if (type == SLIME) {
 		actor->bitmap = (uint8_t*)slimeBitmap;
@@ -352,7 +351,6 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->width = SLIME_WIDTH;
 		actor->health = SLIME_HEALTH;
 		actor->color = SLIME_COLOR;
-		actor->next = 0x0;	
 	}
 	else if (type == MIMIC) {
 		actor->bitmap = (uint8_t*)mimicBitmap;
@@ -360,7 +358,6 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 		actor->width = MIMIC_WIDTH;
 		actor->health = MIMIC_HEALTH;
 		actor->color = MIMIC_COLOR;
-		actor->next = 0x0;
 	}
 
 	actor->lr = lr;

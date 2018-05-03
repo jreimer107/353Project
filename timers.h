@@ -8,6 +8,7 @@
 
 //Base period of our timers
 #define TICKS 62500
+#define TIME_SCALE 15
 
 //*****************************************************************************
 // Configure a general purpose timer to be a 32-bit timer.  
