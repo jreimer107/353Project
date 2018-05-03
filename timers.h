@@ -6,6 +6,7 @@
 
 #include "driver_defines.h"
 
+//Base period of our timers
 #define TICKS 62500
 
 //*****************************************************************************
@@ -68,7 +69,22 @@ bool gp_timer_config_16(uint32_t base_addr, uint32_t mode, bool count_up, bool e
 //*****************************************************************************
 bool gp_timer_start_16(uint32_t base_addr, uint8_t prescalerA_value, uint8_t prescalerB_value, uint16_t ILRA_value, uint16_t ILRB_value);
 
+//*****************************************************************************
+//Configures a general purpose timer as a PWM
+//Parameters:
+//base_addr (uint32_t)				Base address of general purpose timer being used
+//Returns true if the timer is valid.
+//*****************************************************************************
 bool pwm_timer_config(uint32_t base_addr);
+
+//*****************************************************************************
+//Plays a note with given frequency and duration
+//Parameters:
+//base_addr (uint32_t)					Base address of the timer being used.
+//frequency (uint32_t)					Frequency (used to determine pitch) of the note
+//duration (uint32_t)						Multiplier, 1 is a few milliseconds long, 2 is twice as long etc. Max at 17
+//Returns true if the timer is valid.
+//*****************************************************************************
 bool play_freq(uint32_t base_addr, uint32_t frequency, uint32_t duration);
 
 #endif

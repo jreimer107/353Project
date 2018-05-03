@@ -22,17 +22,11 @@
 #define		DOWN_BUTTON_PIN					2
 #define		LEFT_BUTTON_PIN					3
 #define		RIGHT_BUTTON_PIN				4
-#define   EEPROM_I2C_SCL_PCTL_M     GPIO_PCTL_PA6_M
-#define   EEPROM_I2C_SCL_PIN_PCTL 	GPIO_PCTL_PA6_I2C1SCL
-#define   EEPROM_I2C_SDA_PCTL_M     GPIO_PCTL_PA7_M
-#define   EEPROM_I2C_SDA_PIN_PCTL  	GPIO_PCTL_PA7_I2C1SDA
 
 #define		IODIRB		0x01	//IO direction
 #define		GPINTENB	0x05	//Interupt enable
-//#define		DEFVALB		0x07
 #define		INTCONB		0x09	//Interupt on change
 #define		GGPUB			0x0D	//Pull Up resistors
-//#define		INTFB			0x0F	//Int Flag Register
 #define 	GPIOBMCP	0x13		//GPIO Pin
 
 //*****************************************************************************
@@ -42,12 +36,12 @@
 //    i2c_base:   a valid base address of an I2C peripheral
 //
 //    address:    16-bit address of the byte being written.  Only the lower
-//                12 bits is used by the EEPROM
+//                12 bits is used by the MCP23017
 //
-//    data:       Data written to the EEPROM.
+//    data:       Data written to the MCP23017.
 //
 // Returns
-// I2C_OK if the byte was written to the EEPROM.
+// I2C_OK if the byte was written to the MCP23017.
 //*****************************************************************************
 i2c_status_t mcp_byte_write
 ( 
@@ -57,18 +51,18 @@ i2c_status_t mcp_byte_write
 );
 
 //*****************************************************************************
-// Reads a single byte of data from the  MCP24LC32AT EEPROM.  
+// Reads a single byte of data from the MCP23017.  
 //
 // Paramters
 //    i2c_base:   a valid base address of an I2C peripheral
 //
 //    address:    16-bit address of the byte being read.  Only the lower
-//                12 bits is used by the EEPROM
+//                12 bits is used by the MCP23017
 //
-//    data:       data read from the EEPROM is returned to a uint8_t pointer.
+//    data:       data read from the MCP23017 is returned to a uint8_t pointer.
 //
 // Returns
-// I2C_OK if the byte was read from the EEPROM.
+// I2C_OK if the byte was read from the MCP23017.
 //*****************************************************************************
 i2c_status_t mcp_byte_read
 ( 
@@ -78,7 +72,9 @@ i2c_status_t mcp_byte_read
 );
 
 //*****************************************************************************
-// Initialize the EEPROM peripheral
+// Initialize the I2C peripheral
+// Parameters: None
+// Returns true if the writes were completed successfully
 //*****************************************************************************
 bool mcp_init(void);
 

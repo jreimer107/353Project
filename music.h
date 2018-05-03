@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "timers.h"
 
+//Defines notes by frequencies
 #define C4 		261
 #define C4_s	277
 #define	D4		293
@@ -29,14 +30,28 @@
 #define B5_f	932
 #define B5		988
 
+//Sound effect selection
+#define NOTHING 		0
+#define TEAR_SOUND	1
+#define ENEMY_SOUND	2
+#define HURT_SOND 	3
+#define SONG				4
+
+//Sound effect durations
+#define NOTHING_DURATION	1
+#define TEAR_DURATION			4
+#define ENEMY_DURATION		5
+#define HURT_DURATION			6
+#define SONG_DURATION			8
 
 
-
-extern const uint32_t nothing[][2];
-extern const uint32_t tear_sound[][2];
-extern const uint32_t enemy_sound[][2];
-
+//Picks which song should be played by next in sequenc
+//Parameters: None
+//Return: None
 void next_in_sequence(void);
+//Called by handler plays next note in list.
+//Parameters: None
+//Return: None
 void play_sequence(uint8_t sequence);
 
 #endif

@@ -9,11 +9,15 @@ extern uint16_t ps2_x, ps2_y;
 //2. Update the actor's state based on any collisions.
 //3. Complete any type-specific actions.
 //4. Report the aliveness of the actor.
+//Parameters: None
+//Returns:
+//Number of enemies killed
 uint8_t update_actors() {
 	actor_t *curr_actor = actors;
 	actor_t *prev_actor = NULL;
 	bool kill;
 	uint8_t killed = 0;
+	//updates the charachter based on their own update function.
 	while (curr_actor) {
 		if (curr_actor->type == HERO) {
 			kill = update_hero(curr_actor);
@@ -53,8 +57,11 @@ uint8_t update_actors() {
 	return killed;
 }
 
-//Hero has an invincibility counter that prevents it from being damaged continuously.
-//It also fires tears.
+//Controls hero collision and movement
+//Parameters:
+//hero (*actor_t)				Pointer to main character (Steve!)
+//Returns:
+//true if hero has died
 bool update_hero(actor_t *hero) {
 	lr_t edge_lr = at_edge_lr(hero);
 	ud_t edge_ud = at_edge_ud(hero);
@@ -109,7 +116,11 @@ bool update_hero(actor_t *hero) {
 	return false;
 }
 
-//Missile dies on contact with enemy, travels in straight line, and hurts enemies.
+//Missile dies on contact with enemy, travels in straight line(including diagonal), and hurts enemies.
+//Parameters:
+//tear (*actor_t)				Pointer to tear to be updated
+//Returns:
+//True if tear has "died"
 bool update_tear(actor_t *tear) {
 	actor_t *enemy = actors->next;
 
@@ -145,6 +156,10 @@ bool update_tear(actor_t *tear) {
 }
 
 //Zombies randomly sway towards player.
+//Parameters:
+//zombie (*actor_t)				Pointer to zombie to be updated
+//Returns:
+//True if zombie has died
 bool update_zombie(actor_t *zombie) {
 	uint8_t direction_preference = rand() % PREFERENCE_MAX;
 	actor_t *hero = actors; //Hero is head of actors list.
@@ -175,6 +190,10 @@ bool update_zombie(actor_t *zombie) {
 }
 
 //Bats bounce around the screen.
+//Parameters:
+//bat (*actor_t)				Pointer to bat to be updated
+//Returns:
+//True if bat has died
 bool update_bat(actor_t *bat) {
 	//If given only one direction they will repeatedy go back and forth
 	//If given two directions they will bounce around like tv screensavers
@@ -209,6 +228,10 @@ bool update_bat(actor_t *bat) {
 }
 
 //Slimes only move every so often. They have a counter that tells them when to move and when not to.
+//Parameters:
+//slime (*actor_t)				Pointer to slime to be updated
+//Returns:
+//True if slime has died
 bool update_slime(actor_t *slime) {
 	lr_t edge_lr = at_edge_lr(slime);
 	ud_t edge_ud = at_edge_ud(slime);
@@ -259,7 +282,11 @@ bool update_slime(actor_t *slime) {
 	return false;
 }
 
-//Mimics, surprisingly, mimic the movement of the player, but slower (same speed, faster? variants?)
+//Mimics, surprisingly, mimic the movement of the player, but faster
+//Parameters:
+//mimic (*actor_t)				Pointer to mimic to be updated
+//Returns:
+//True if mimic has died
 bool update_mimic(actor_t *mimic) {
 	lr_t edge_lr = at_edge_lr(mimic);
 	ud_t edge_ud = at_edge_ud(mimic);
@@ -284,6 +311,15 @@ bool update_mimic(actor_t *mimic) {
 	return false;
 }
 
+//Creates new montsters and tears by setting their initial values
+//Parameters:
+//type (uint8_t)		Decides which actor will be spawned	
+//x (uint16_t)			X location of actor
+//y (uint16_t)			Y location of actor
+//lr (lr_t)					Direction the actor is facing, left/right
+//ud (ud_t)					Direction the actor is facing, up/down
+//Returns:
+//Pointer to the actor that was created
 actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 	actor_t *actor = malloc(sizeof(actor_t));
 	if (type == TEAR) {
@@ -343,9 +379,12 @@ actor_t* create_actor(uint8_t type, uint16_t x, uint16_t y, lr_t lr, ud_t ud) {
 }
 
 //Detects if an actor is at an edge.
-//returns LEFT if the actor is at the left edge of the screen
-//returns RIGHT if the actor is at the right edge of the screen
-//else returns IDLE.
+//Parameters:
+//actor (*actor_t)			Pointer to current actor
+//Returns:
+//LEFT if the actor is at the left edge of the screen
+//RIGHT if the actor is at the right edge of the screen
+//else IDLE
 lr_t at_edge_lr(actor_t *actor) {
 	if (actor->x_loc < actor->width / 2 + 2) return LEFT_d;
 	if (actor->x_loc > COLS - actor->width / 2 - 2) return RIGHT_d;
@@ -353,15 +392,24 @@ lr_t at_edge_lr(actor_t *actor) {
 }
 
 //Detects if an actor is at an edge.
-//returns UP if the actor is at the top edge of the screen
-//returns DOWN if the actor is at the bottom edge of the screen
-//Else returns IDLE.
+//Parameters:
+//actor (*actor_t)			Pointer to current actor
+//Returns:
+//UP if the actor is at the top edge of the screen
+//DOWN if the actor is at the bottom edge of the screen
+//returns IDLE.
 ud_t at_edge_ud(actor_t *actor) {
 	if (actor->y_loc < actor->height / 2  + 20) return UP_d;
 	if (actor->y_loc > ROWS - actor->height / 2 - 1) return DOWN_d;
 	return IDLE_ud;
 }
 
+//Detects if two actors are colliding
+//Parameters:
+//a (*actor_t)			First actor for collision test
+//b (*actor_t)			Second actor for collision test
+//Returns:
+//True if colliding
 bool detect_collision(actor_t *a, actor_t *b) {
 	uint16_t a_top, a_bottom, a_right, a_left;
 	uint16_t b_top, b_bottom, b_right, b_left;
@@ -384,13 +432,14 @@ bool detect_collision(actor_t *a, actor_t *b) {
 	else return true;
 }
 
-
+//Creates the main character at the start of the game
+//Parameters: None
+//Returns: None
 void hero_init(void){
 	actor_t *hero;
 	actors = malloc(sizeof(actor_t));
 	hero = actors;
 	hero->bitmap = (uint8_t*)&heroBitmap;
-	//hero->clear_bitmap = (uint8_t*)&heroErase;
 	hero->count = 0;
 	hero->health = PLAYER_HEALTH;
 	hero->height = STEVE_HEIGHT;
