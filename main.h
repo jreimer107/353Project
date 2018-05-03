@@ -41,6 +41,10 @@
 
 #define WAVE_SIZE 3
 
+#define MCP PF0
+#define PWM PF2
+#define RESET SW1_M
+
 #define DOWN_THRESHOLD	0x400
 #define UP_THRESHOLD	0xC00
 #define RIGHT_THRESHOLD	0x400
@@ -53,11 +57,13 @@
 #define NUM_SIDES 		4
 #define SPAWN_SIZE 		40
 #define NUM_X_SPOTS 	COLS / SPAWN_SIZE
-#define NUM_Y_SPOTS		ROWS / SPAWN_SIZE - 1
+#define NUM_Y_SPOTS		ROWS / SPAWN_SIZE
 #define FIRST_X 		SPAWN_SIZE / 2
 #define LAST_X			FIRST_X + (NUM_X_SPOTS - 1) * SPAWN_SIZE
-#define FIRST_Y			SPAWN_SIZE
+#define FIRST_Y			SPAWN_SIZE / 2
+#define EXTRA_Y			SPAWN_SIZE / (NUM_Y_SPOTS + 1)
 #define LAST_Y			FIRST_Y + (NUM_Y_SPOTS - 1) * SPAWN_SIZE
+
 #define TOP		1
 #define BOTTOM	3
 #define LEFT	2

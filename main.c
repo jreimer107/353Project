@@ -71,26 +71,23 @@ void initialize_hardware(void) {
 	
 	//// setup the timers ////
 	gp_timer_config_16(TIMER0_BASE, TIMER_TAMR_TAMR_PERIOD, false, true);
-	
-	//// setup GPIO for LED drive ////
-	lp_io_init();
-	lp_io_clear_pin(RED_BIT);
-	lp_io_clear_pin(GREEN_BIT);
+	pwm_timer_config(TIMER1_BASE);
 	
 	//// Setup ADC to convert on PS2 joystick using SS2 and interrupts ////
-	
 	ps2_initialize_SS2();
 	
 	//Initialize EEPROM
 	eeprom_init();
 	
-	
-	
 
 	gpio_enable_port(GPIOF_BASE);
-	gpio_config_digital_enable(GPIOF_BASE, PF0 |PF2);
-	gpio_config_enable_input(GPIOF_BASE, PF0);
-	gpio_config_falling_edge_irq(GPIOF_BASE, PF0);
+	gpio_config_digital_enable(GPIOF_BASE, MCP | PWM | RESET);
+	gpio_config_enable_input(GPIOF_BASE, MCP | RESET);
+	gpio_config_enable_output(GPIOF_BASE, PWM);
+	gpio_config_alternate_function(GPIOF_BASE, PWM);
+	gpio_config_port_control(GPIOF_BASE, PWM, GPIO_PCTL_PF2_T1CCP0);
+	gpio_config_enable_pullup(GPIOF_BASE, RESET);
+	gpio_config_falling_edge_irq(GPIOF_BASE, MCP);
 	NVIC_SetPriority(GPIOF_IRQn, 0);
   	NVIC_EnableIRQ(GPIOF_IRQn);
 	portf->ICR |= GPIO_ICR_GPIO_M;
@@ -99,28 +96,10 @@ void initialize_hardware(void) {
 		while(1){}
 	}
 	
-
 	play_sequence(0);
-	pwm_timer_config(TIMER1_BASE);
-	gpio_config_enable_output(GPIOF_BASE,PF2);
-	gpio_config_alternate_function(GPIOF_BASE, PF2);
-
-	gpio_config_port_control(GPIOF_BASE,PF2,GPIO_PCTL_PF2_T1CCP0);
-	
-	
 }
 
-//Red LED
-//Toggle every 20 ISR executions (5Hz)
-void TIMER0A_Handler(void)
-{
-    TimerA_Done = true;
-    gp_timer->ICR |= TIMER_ICR_TATOCINT;
-}
 
-//Green LED
-//Prescalar 1
-//Toggle every 20 executions (2.5 Hz)
 void TIMER0B_Handler(void)
 {
     TimerB_Done = true;
@@ -286,7 +265,7 @@ void update_game(uint8_t killed) {
 
     dead += killed;
 
-	if ((dead % 4) == 0){
+	if ((dead % (WAVE_SIZE + 1)) == 0){
 		spawn();
 		dead = 1;
 		//spawned = 0;
@@ -319,33 +298,44 @@ void update_game(uint8_t killed) {
 
 void spawn() {
     uint16_t x, y;
-	uint8_t prev_spots[NUM_SIDES];
-    uint8_t i, side, spot, type;
+	static uint16_t prev_x[WAVE_SIZE];
+	static uint16_t prev_y[WAVE_SIZE];
+    uint8_t i, j, side, type;
     lr_t lr;
     ud_t ud;
+	bool match;
 
 	for (i = 0; i < WAVE_SIZE; i++) {
+		match = true;
 		lr = rand() % UDLR_SIZE;
 		ud = rand() % UDLR_SIZE;
 		type = rand() % NUM_ENEMY_TYPES + ENEMY_OFFSET;
 		side = rand() % NUM_SIDES;
 		
-		if (side % 2) {
-			do {
-				spot = rand() % NUM_X_SPOTS;
-			} while(spot == prev_spots[0] || spot == prev_spots[1]);
-			x = FIRST_X + SPAWN_SIZE * spot;
-			if (side == TOP) y = FIRST_Y; //top
+		if (side % 2) {	//1(top) or 3(bottom)
+			while(match) {
+				x = FIRST_X + SPAWN_SIZE * (rand() % NUM_X_SPOTS);
+				match = false;
+				for (j = 0; j < WAVE_SIZE; j++) {
+					if (x == prev_x[j]) match = true;
+				}
+			}
+			if (side == TOP && x != FIRST_X) y = SPAWN_SIZE; //top
 			else y = LAST_Y; //bottom
 		}	 
-		else {
-			do {
-				spot = rand() % NUM_Y_SPOTS;
-			} while(spot == prev_spots[2] || spot == prev_spots[3]);
-			y = FIRST_Y + SPAWN_SIZE * spot;
-			if (side == LEFT) x = FIRST_X; //left
+		else {	//2(left) or 4(right)
+			while(match) {
+				y = FIRST_Y + SPAWN_SIZE * (rand() % NUM_Y_SPOTS);
+				match = false;
+				for (j = 0; j < WAVE_SIZE; j++) {
+					if (y == prev_y[j]) match = true;
+				}
+			}
+			if (side == LEFT && y != FIRST_Y) x = FIRST_X; //left
 			else x = LAST_X; //right
 		}
+		prev_x[i] = x;
+		prev_y[i] = y;		
 		create_actor(type, x, y, lr, ud);
 	}
 
